@@ -25,7 +25,7 @@ void Json::EmptyError(){
     !Print Key Exist Error
 */
 void Json::KeyExistError(string& key){
-    cout << "Error: Element with key \"" << key << "\" already exists!!";
+    cout << "Error: Element with key \"" << key << "\" already exists!!" << endl;
 }
 
 /*
@@ -133,8 +133,8 @@ int Json::size() {
 
     @return total The total value of element's value in container
 */
-int Json::sum() {
-    int total = 0;
+long Json::sum() {
+    long total = 0;
 
     for (int i = 0; i < size(); i++){
         total += _obj[i]._value;

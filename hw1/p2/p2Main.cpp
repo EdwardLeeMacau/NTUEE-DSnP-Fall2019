@@ -58,8 +58,8 @@ bool is_number(string& str){
 */
 template <class Container>
 void parseCmd(string& str, Container& container, const string& delim = " "){
-    int lcursor = 0;
-    int rcursor = 0;
+    unsigned long lcursor = 0;
+    unsigned long rcursor = 0;
     
     do {
         rcursor = str.find(delim, lcursor);

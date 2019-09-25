@@ -39,7 +39,7 @@ public:
     bool isEmpty();
     bool isExist(string&);
     int size();
-    int sum();
+    long sum();
     JsonElem maxElement();
     JsonElem minElement();
     double average();
