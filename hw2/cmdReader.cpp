@@ -48,10 +48,7 @@ CmdParser::readCmdInt(istream& istr)
             case LINE_END_KEY   :
             case END_KEY        : moveBufPtr(_readBufEnd); break;
             case BACK_SPACE_KEY : /* TODO */ 
-                                  if (moveBufPtr(_readBufPtr - 1)) {
-                                      deleteChar();
-                                  } 
-                                  break;
+                                  if (moveBufPtr(_readBufPtr - 1)) {deleteChar();} break;
             case DELETE_KEY     : deleteChar(); break;
             case NEWLINE_KEY    : addHistory();
                                   cout << char(NEWLINE_KEY);
@@ -164,7 +161,7 @@ CmdParser::deleteChar()
         3. Move the cursor to **_readBufPtr**
         4. --readBufEnd
     */
-    for (char* ptr = _readBufPtr; ptr < _readBufEnd - 1; ++ptr) {
+    for (char* ptr = _readBufPtr; ptr < _readBufEnd; ++ptr) {
         *ptr = *(ptr + 1);
         cout << *ptr;
     }
@@ -362,7 +359,7 @@ CmdParser::addHistory()
     size_t lcursor = cmd.find_first_not_of(' ');
     size_t rcursor = cmd.find_last_not_of(' ');
 
-    // Check if **_readBuf** is empty
+    // If **_readBuf** is empty, do nothing
     if (lcursor == string::npos)
         return;
 
@@ -382,6 +379,11 @@ CmdParser::addHistory()
 
     // Move _historyIdx to the end of _history
     _historyIdx = _history.size();
+
+    // Clean up _readBuf
+    for (char *ptr = _readBuf; ptr < _readBufEnd; ++ptr){
+        *ptr = 0;
+    }
 }
 
 /*
