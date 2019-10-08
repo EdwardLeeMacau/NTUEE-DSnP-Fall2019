@@ -308,7 +308,7 @@ CmdParser::moveToHistory(int index)
     /* 
         To move down:
         1. Beep() and return if _historyIdx is at the end
-        2. If index > size, clip it to size
+        2. If index > size() - 1, clip it to size() - 1
     */
     if (index > _historyIdx) {
         if (_historyIdx == _history.size()) {
@@ -316,8 +316,8 @@ CmdParser::moveToHistory(int index)
             return;
         }
         
-        if (index >= _history.size())
-            index = _history.size();
+        if (index >= _history.size() - 1)
+            index = _history.size() - 1;
     }
 
     // Save as temp if it is a new command
@@ -359,23 +359,21 @@ CmdParser::addHistory()
     size_t lcursor = cmd.find_first_not_of(' ');
     size_t rcursor = cmd.find_last_not_of(' ');
 
-    // If **_readBuf** is empty, do nothing
-    if (lcursor == string::npos)
-        return;
-
-    // Strip **_readBuf**
-    if (rcursor == string::npos)
-        cmd = cmd.substr(lcursor);
-    else
-        cmd = cmd.substr(lcursor, rcursor - lcursor + 1);
+    // If **_readBuf** is empty, cmd is an empty string ""
 
     // Clean up temp recorded string
     if (_tempCmdStored) {
-        _history.pop_back(); _history.push_back(cmd);
+        _history.pop_back();
         _tempCmdStored = false;
     }
-    else
+
+    // Else if **_readBuf** is not empty, strip
+    if (lcursor != string::npos) {
+        if (rcursor == string::npos) cmd = cmd.substr(lcursor);
+        else cmd = cmd.substr(lcursor, rcursor - lcursor + 1);
+
         _history.push_back(cmd);
+    }
 
     // Move _historyIdx to the end of _history
     _historyIdx = _history.size();
