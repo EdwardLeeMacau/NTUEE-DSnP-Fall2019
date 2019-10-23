@@ -36,7 +36,6 @@ extern CmdParser* cmdMgr;
 //----------------------------------------------------------------------
 //    command execution status
 //----------------------------------------------------------------------
-
 enum CmdExecStatus
 {
    CMD_EXEC_DONE  = 0,
@@ -59,13 +58,6 @@ enum CmdOptionError
    CMD_OPT_ERROR_TOT
 };
 
-enum TabStatus
-{
-   LIST_ALL_CMD     = 0,
-   LIST_SOME_MATCH  = 1,
-   MATCH_FIRST      = 2,
-   NO_MATCH         = 3
-};
 
 //----------------------------------------------------------------------
 //    Base class : CmdExec
@@ -82,10 +74,10 @@ public:
    virtual void help() const = 0;
 
    void setOptCmd(const string& str) { _optCmd = str; }
+   bool checkOptCmd(const string& check) const;  // Removed for TODO...
    const string& getOptCmd() const { return _optCmd; }
 
 protected:
-   bool lexNoOption(const string&) const;
    bool lexSingleOption(const string&, string&, bool optional = true) const;
    bool lexOptions(const string&, vector<string>&, size_t nOpts = 0) const;
    CmdExecStatus errorOption(CmdOptionError err, const string& opt) const;
@@ -94,9 +86,6 @@ private:
    string            _optCmd;
 };
 
-/*
-   Inheritance Marco of CmdClass
-*/
 #define CmdClass(T)                           \
 class T: public CmdExec                       \
 {                                             \
@@ -150,7 +139,10 @@ private:
    bool readCmd(istream&);
    CmdExec* parseCmd(string&);
    void listCmd(const string&);
+   bool listCmdDir(const string&);  // Removed for TODO...
    void printPrompt() const { cout << _prompt; }
+   bool pushDofile();  // Removed for TODO's
+   bool popDofile();   // Removed for TODO's
 
    // Helper functions
    bool moveBufPtr(char* const);

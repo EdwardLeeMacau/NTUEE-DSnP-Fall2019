@@ -72,42 +72,61 @@ inline static ParseChar returnCh(int);
 ParseChar
 CmdParser::getChar(istream& istr) const
 {
-   char ch = mygetc(istr);
+    char ch = mygetc(istr);
 
-   if (istr.eof())
-      return returnCh(INPUT_END_KEY);
-   switch (ch) {
-      // Simple keys: one code for one key press
-      // -- The following should be platform-independent
-      case LINE_BEGIN_KEY:  // Ctrl-a
-      case LINE_END_KEY:    // Ctrl-e
-      case INPUT_END_KEY:   // Ctrl-d
-      case TAB_KEY:         // tab('\t') or Ctrl-i
-      case NEWLINE_KEY:     // enter('\n') or ctrl-m
-         return returnCh(ch);
+    if (istr.eof())
+        return returnCh(INPUT_END_KEY);
+    switch (ch) {
+        // Simple keys: one code for one key press
+        // -- The following should be platform-independent
+        case LINE_BEGIN_KEY:  // Ctrl-a
+        case LINE_END_KEY:    // Ctrl-e
+        case INPUT_END_KEY:   // Ctrl-d
+        case TAB_KEY:         // tab('\t') or Ctrl-i
+        case NEWLINE_KEY:     // enter('\n') or ctrl-m
+            return returnCh(ch);
 
-      // TODO... Check and change only if you want to use your own
-      // keyboard mapping for special keys.
-      // -- The following simple/combo keys are platform-dependent
-      //    You should test to check the returned codes of these key presses
-      // -- You should either modify the "enum ParseChar" definitions in
-      //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
-      //
-      // -- You need to handle:
-      //    { BACK_SPACE_KEY, ARROW_UP/DOWN/RIGHT/LEFT,
-      //      HOME/END/PG_UP/PG_DOWN/INSERT/DELETE }
-      //
-      // Combo keys: multiple codes for one key press
-      // -- Usually starts with ESC key, so we check the "case ESC"
-      // case ESC_KEY:
+        // TODO... Check and change only if you want to use your own
+        // keyboard mapping for special keys.
+        
+        // -- The following simple/combo keys are platform-dependent
+        //    You should test to check the returned codes of these key presses
+        // -- You should either modify the "enum ParseChar" definitions in
+        //    "cmdCharDef.h", or revise the control flow of the "case ESC" below
+        case BACK_SPACE_KEY:
+            return returnCh(ch);
 
-      // For the remaining printable and undefined keys
-      default:
-         if (isprint(ch)) return returnCh(ch);
-         else return returnCh(UNDEFINED_KEY);
-   }
+        // -- You need to handle:
+        //    { BACK_SPACE_KEY, ARROW_UP/DOWN/RIGHT/LEFT,
+        //      HOME/END/PG_UP/PG_DOWN/INSERT/DELETE }
 
-   return returnCh(UNDEFINED_KEY);
+        // Combo keys: multiple codes for one key press
+        // -- Usually starts with ESC key, so we check the "case ESC"
+        case ESC_KEY: {
+            char combo = mygetc(istr);
+            // Note: ARROW_KEY_INT == MOD_KEY_INT, so we only check MOD_KEY_INT
+            if (combo == char(MOD_KEY_INT)) {
+                char key = mygetc(istr);
+                if ((key >= char(MOD_KEY_BEGIN)) && (key <= char(MOD_KEY_END))) {
+                if (mygetc(istr) == MOD_KEY_DUMMY)
+                    return returnCh(int(key) + MOD_KEY_FLAG);
+                else return returnCh(UNDEFINED_KEY);
+                }
+                else if ((key >= char(ARROW_KEY_BEGIN)) &&
+                        (key <= char(ARROW_KEY_END)))
+                return returnCh(int(key) + ARROW_KEY_FLAG);
+                else return returnCh(UNDEFINED_KEY);
+            }
+            else { mybeep(); return getChar(istr); }
+        }
+
+        // For the remaining printable and undefined keys
+        default:
+            if (isprint(ch)) return returnCh(ch);
+            else return returnCh(UNDEFINED_KEY);
+    }
+
+    return returnCh(UNDEFINED_KEY);
 }
 #else // TA_KB_SETTING is defined
 // DO NOT CHANGE THIS PART...
