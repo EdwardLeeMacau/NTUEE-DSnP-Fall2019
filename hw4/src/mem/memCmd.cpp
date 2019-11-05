@@ -34,6 +34,7 @@ initMemCmd()
 //----------------------------------------------------------------------
 //    MTReset [(size_t blockSize)]
 //----------------------------------------------------------------------
+
 CmdExecStatus
 MTResetCmd::exec(const string& option)
 {
@@ -75,12 +76,60 @@ MTResetCmd::help() const
 //----------------------------------------------------------------------
 //    MTNew <(size_t numObjects)> [-Array (size_t arraySize)]
 //----------------------------------------------------------------------
+
 CmdExecStatus
 MTNewCmd::exec(const string& option)
 {
    // TODO
 
+   vector<string> tokens;
+   int numObjects = 0;      // n times
+   int arraySize = 0;       // array size
+
+   if (!lexOptions(option, tokens)) {
+      return errorOption(CMD_OPT_MISSING, option);
+   }
+
+   for (size_t i = 0; i < tokens.size(); ++i) {
+      // Parsing [-Array (size_t arraySize)]
+      if (!myStrNCmp("-Array", tokens[i], 2)) 
+      {
+         // Check Argument Repeat
+         if (arraySize)
+            return errorOption(CMD_OPT_EXTRA, tokens[i]);
+         // Check Argument Missing
+         if (i == tokens.size() - 1)
+            return errorOption(CMD_OPT_MISSING, tokens[i]);
+         // Check Next Token is vaild
+         if (!myStr2Int(tokens[++i], arraySize) || arraySize <= 0)
+            return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+      }
+      // Parsing <(size_t numObjects)>
+      else 
+      {
+         if (numObjects)
+            return errorOption(CMD_OPT_EXTRA, tokens[i]);
+         if (!myStr2Int(tokens[i], numObjects) || numObjects <= 0)
+            return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+      }
+   }
+
+   // If Parse no numObjects
+   if (numObjects == 0)
+      return errorOption(CMD_OPT_MISSING, "");
+   
    // Use try-catch to catch the bad_alloc exception
+   try 
+   {
+      if (arraySize)
+         mtest.newArrs(numObjects, arraySize);
+      else
+         mtest.newObjs(numObjects);
+   }
+   catch(bad_alloc BadAllocError) 
+   {
+      return CMD_EXEC_ERROR;
+   }
    return CMD_EXEC_DONE;
 }
 
@@ -101,11 +150,100 @@ MTNewCmd::help() const
 //----------------------------------------------------------------------
 //    MTDelete <-Index (size_t objId) | -Random (size_t numRandId)> [-Array]
 //----------------------------------------------------------------------
+
 CmdExecStatus
 MTDeleteCmd::exec(const string& option)
 {
    // TODO
+   vector<string> tokens;
+   bool randomOpt = false;
+   bool arrayOpt = false;
+   int id = -1;
+   
+   if (!lexOptions(option, tokens))
+      return errorOption(CMD_OPT_MISSING, option);
 
+   for (size_t i = 0; i < tokens.size(); ++i) {
+      // Parsing [-Array]
+      if (!myStrNCmp("-Array", tokens[i], 2)) 
+      {
+         if (arrayOpt)
+            return errorOption(CMD_OPT_EXTRA, tokens[i]);
+         else {
+            arrayOpt = true;
+         }
+      }
+      // Parsing <-Random (size_t numRandiD)>
+      else if (!myStrNCmp("-Random", tokens[i], 2)) 
+      {
+         if (randomOpt)
+            return errorOption(CMD_OPT_EXTRA, tokens[i]);
+         randomOpt = true;
+         if (++i == tokens.size())
+            return errorOption(CMD_OPT_MISSING, "-R");
+         if (!myStr2Int(tokens[i], id) || id <= 0)
+            return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+      }
+      // Parsing <-Index (size_t objId)>
+      else if (!myStrNCmp("-Index", tokens[i], 2))
+      {
+         if (id != -1)
+            return errorOption(CMD_OPT_EXTRA, tokens[i]);
+         if (++i == tokens.size())
+            return errorOption(CMD_OPT_MISSING, "-I");
+         if (!myStr2Int(tokens[i], id) || id < 0)
+            return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+      }
+      else
+      {
+         return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+      }
+   }
+
+   if (randomOpt) 
+   {
+      if (arrayOpt) 
+      {
+         if (!mtest.getArrListSize()) {
+            cerr << "Size of array list is " << mtest.getArrListSize() << "!!" << endl;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+         }
+         for (int i = 0; i < id; ++i)
+            mtest.deleteArr(rnGen(mtest.getArrListSize()));
+      }
+      else
+      {
+         if (!mtest.getObjListSize()) {
+            cerr << "Size of object list is " << mtest.getObjListSize() << "!!" << endl;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+         }   
+         for (int i = 0; i < id; ++i)
+            mtest.deleteObj(rnGen(mtest.getObjListSize()));
+      }
+   }
+   else 
+   {
+      if (arrayOpt)
+      {
+         if (id < mtest.getArrListSize())
+            mtest.deleteArr(id);
+         else {
+            cerr << "Size of array list (" << mtest.getArrListSize() << ") is <= " << id << "!!" << endl;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+         }
+      }
+      else
+      {
+         if (id < mtest.getObjListSize())
+            mtest.deleteObj(id);
+         else {
+            cerr << "Size of object list (" << mtest.getObjListSize() << ") is <= " << id << "!!" << endl;
+            return errorOption(CMD_OPT_ILLEGAL, to_string(id));
+         }
+      }
+   }
+
+   
    return CMD_EXEC_DONE;
 }
 
@@ -127,6 +265,7 @@ MTDeleteCmd::help() const
 //----------------------------------------------------------------------
 //    MTPrint
 //----------------------------------------------------------------------
+
 CmdExecStatus
 MTPrintCmd::exec(const string& option)
 {
