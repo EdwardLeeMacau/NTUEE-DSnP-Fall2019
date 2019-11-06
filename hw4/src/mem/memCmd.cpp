@@ -169,20 +169,20 @@ MTDeleteCmd::exec(const string& option)
       {
          if (arrayOpt)
             return errorOption(CMD_OPT_EXTRA, tokens[i]);
-         else {
+         else
             arrayOpt = true;
-         }
       }
       // Parsing <-Random (size_t numRandiD)>
       else if (!myStrNCmp("-Random", tokens[i], 2)) 
       {
-         if (randomOpt)
+         if (id != -1)
             return errorOption(CMD_OPT_EXTRA, tokens[i]);
-         randomOpt = true;
          if (++i == tokens.size())
             return errorOption(CMD_OPT_MISSING, "-R");
          if (!myStr2Int(tokens[i], id) || id <= 0)
             return errorOption(CMD_OPT_ILLEGAL, tokens[i]);
+
+         randomOpt = true;
       }
       // Parsing <-Index (size_t objId)>
       else if (!myStrNCmp("-Index", tokens[i], 2))
