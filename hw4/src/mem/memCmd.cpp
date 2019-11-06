@@ -130,6 +130,7 @@ MTNewCmd::exec(const string& option)
    {
       return CMD_EXEC_ERROR;
    }
+
    return CMD_EXEC_DONE;
 }
 
@@ -169,8 +170,7 @@ MTDeleteCmd::exec(const string& option)
       {
          if (arrayOpt)
             return errorOption(CMD_OPT_EXTRA, tokens[i]);
-         else
-            arrayOpt = true;
+         arrayOpt = true;
       }
       // Parsing <-Random (size_t numRandiD)>
       else if (!myStrNCmp("-Random", tokens[i], 2)) 
@@ -200,6 +200,11 @@ MTDeleteCmd::exec(const string& option)
       }
    }
 
+   // If parse no Option
+   if (id == -1)
+        return errorOption(CMD_OPT_MISSING, "");
+
+   // Act Random Option
    if (randomOpt) 
    {
       if (arrayOpt) 
@@ -221,6 +226,7 @@ MTDeleteCmd::exec(const string& option)
             mtest.deleteObj(rnGen(mtest.getObjListSize()));
       }
    }
+   // Act Idx Option
    else 
    {
       if (arrayOpt)
