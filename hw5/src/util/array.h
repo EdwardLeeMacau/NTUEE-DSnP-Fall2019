@@ -88,8 +88,7 @@ public:
    void push_back(const T& x) { 
       // Handle the case of Container overflow
       if (_size == _capacity){
-         if (!_capacity)   resize(1);
-         else  resize(_capacity * 2);
+         (!_capacity)? resize(1) : resize(_capacity * 2);
       }
 
       _data[_size] = x; _size++; _isSorted = false;
@@ -110,7 +109,7 @@ public:
 
    bool erase(iterator pos) { 
       // Return If Out-of-Range
-      if (pos._node < _data || pos._node >= (_data + size)) {
+      if (pos._node < _data || pos._node >= (_data + _size)) {
          return false;
       }
 
@@ -134,6 +133,8 @@ public:
    }
 
    /*
+      [Notes] Can implement binary search if array is sorted.
+
       @params x 
 
       @return it Return end() if not find x
@@ -174,10 +175,10 @@ public:
 
          if (_capacity) {
             copy(_data, _data + _size, newData);         
-            // delete _data; 
          }
          
          _capacity = n; 
+         delete []_data;   
          _data = newData;
       }
    }

@@ -1,0 +1,66 @@
+cirr opt01.aag
+cirp -n
+cirr opt02.aag -r
+cirp -n
+cirr opt03.aag -r
+cirp -n
+cirr opt04.aag -r
+cirp -n
+cirr opt05.aag -r
+cirp -n
+cirr opt06.aag -r
+cirp -n
+cirr sim01.aag -r
+cirp -n
+cirr sim02.aag -r
+cirp -n
+cirr sim03.aag -r
+cirp -n
+cirr sim04.aag -r
+cirp -n
+cirr sim05.aag -r
+cirp -n
+cirr sim06.aag -r
+cirp -n
+cirr sim07.aag -r
+cirp -n
+cirr sim08.aag -r
+cirp -n
+cirr sim09.aag -r
+cirp -n
+cirr sim10.aag -r
+cirp -n
+cirr sim11.aag -r
+cirp -n
+cirr sim12.aag -r
+cirp -n
+cirr sim13.aag -r
+cirp -n
+cirr sim14.aag -r
+cirp -n
+cirr sim15.aag -r
+cirp -n
+cirr strash01.aag -r
+cirp -n
+cirr strash02.aag -r
+cirp -n
+cirr strash03.aag -r
+cirp -n
+cirr strash04.aag -r
+cirp -n
+cirr strash05.aag -r
+cirp -n
+cirr strash06.aag -r
+cirp -n
+cirr strash07.aag -r
+cirp -n
+cirr strash08.aag -r
+cirp -n
+cirr strash09.aag -r
+cirp -n
+cirr strash10.aag -r
+cirp -n
+cirr test1.aag -r
+cirp -n
+cirr test2.aag -r
+cirp -n

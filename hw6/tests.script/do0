@@ -1,0 +1,7 @@
+CirRead ./tests.fraig/test2.aag
+CirPrint
+CirGate 1
+CirGate 17
+CirGate 7
+CirGate 12
+Quit -f

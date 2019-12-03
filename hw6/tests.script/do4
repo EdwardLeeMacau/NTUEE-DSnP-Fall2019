@@ -1,0 +1,263 @@
+cirr opt01.aag
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirr opt02.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirr opt03.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirr opt04.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirr opt05.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirg 12
+cirg 13
+cirg 14
+cirg 15
+cirg 16
+cirr opt06.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirg 12
+cirg 13
+cirg 14
+cirg 15
+cirg 16
+cirr sim01.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirr sim02.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirr sim03.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirr sim04.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirr sim05.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirg 12
+cirg 13
+cirg 14
+cirg 15
+cirg 16
+cirr sim06.aag -r
+cirr sim07.aag -r
+cirr sim08.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirr sim09.aag -r
+cirr sim10.aag -r
+cirr sim11.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirr sim12.aag -r
+cirr sim13.aag -r
+cirr sim14.aag -r
+cirr sim15.aag -r
+cirr strash01.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirr strash02.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirr strash03.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirr strash04.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirr strash05.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirr strash06.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirg 12
+cirr strash07.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirr strash08.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirr strash09.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirr strash10.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirr test1.aag -r
+cirr test2.aag -r
+cirg 1
+cirg 2
+cirg 3
+cirg 4
+cirg 5
+cirg 6
+cirg 7
+cirg 8
+cirg 9
+cirg 10
+cirg 11
+cirg 12
+cirg 13
+cirg 14
+cirg 15
+cirg 16
+cirg 17
+cirg 18
+cirg 19
+cirg 20
