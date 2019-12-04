@@ -9,7 +9,9 @@
 #ifndef CIR_MGR_H
 #define CIR_MGR_H
 
+#include <algorithm>
 #include <vector>
+#include <stack>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -24,12 +26,12 @@ extern CirMgr *cirMgr;
 class CirMgr
 {
 public:
-   CirMgr(){}
-   ~CirMgr() {}
+   CirMgr();
+   ~CirMgr();
 
    // Access functions
    // return '0' if "gid" corresponds to an undefined gate.
-   CirGate* getGate(unsigned gid) const { return 0; }
+   CirGate* getGate(unsigned gid) const;
 
    // Member functions about circuit construction
    bool readCircuit(const string&);
@@ -42,7 +44,35 @@ public:
    void printFloatGates() const;
    void writeAag(ostream&) const;
 
+   void reset();
+
 private:
+
+   void DepthFirstTraversal(const unsigned int &, const unsigned int &);
+   void DepthFirstTraversal(stack<CirGate*> &, const unsigned int &);
+   void DepthFirstTraversal(stack<CirGate*> &, vector<CirGate*> &, const unsigned int &);
+
+   bool readHeader(const string&);
+   bool loadInput(const unsigned int&);
+   bool loadOutput(const unsigned int&, const unsigned int&);
+   bool loadAIG(const unsigned int&, const unsigned int&, const unsigned int&);
+   bool loadSymbol(const string&);
+   bool loadComment(const string&);
+   bool connect();
+
+   vector<unsigned int> _pin;       // PIn
+   vector<unsigned int> _pout;      // POut
+   vector<unsigned int> _aig;       // AIGs Number
+   vector<unsigned int> _floating;  // Floating Gates
+   vector<unsigned int> _undefined; // Undefined Gates
+   vector<unsigned int> _notused;   // Not in used Gates
+   vector<CirGate*>     _gates;
+
+   unsigned int _M;                 // Maximal Variable Index
+   unsigned int _I;                 // Number of Inputs
+   unsigned int _L;                 // Number of Latches
+   unsigned int _O;                 // Number of Outputs
+   unsigned int _A;                 // Number of AND Gates
 };
 
 #endif // CIR_MGR_H
