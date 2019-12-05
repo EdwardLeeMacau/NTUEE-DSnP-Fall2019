@@ -154,9 +154,10 @@ CirMgr::CirMgr() : _M(0), _I(0), _L(0), _O(0), _A(0)
 
 }
 
+// Release the memory allocated by CirGates.
 CirMgr::~CirMgr()
 {
-
+   for (auto it : _gates)  delete it;
 }
 
 /*
@@ -181,7 +182,8 @@ CirMgr::readCircuit(const string& fileName)
    unsigned int i1, i2, i3;
    streampos pos_o;
    fstream file(fileName);
-   string tmp;
+   string tmp, tmp2;
+   char type;
    bool isFloating;
 
    // Open File
@@ -192,15 +194,15 @@ CirMgr::readCircuit(const string& fileName)
    }
 
    // Set LineNo
-   lineNo = 0;
+   lineNo = 1;
 
    // Get Header
    getline(file, tmp);
    readHeader(tmp);  
    ++lineNo;
 
-   // Set Attribute
-   _gates.resize(_M + _O); fill(_gates.begin(), _gates.end(), (CirGate*)NULL);
+   // Set Attribute (1 (CONST 0) + M (PI / AIG) + O (PO)) 
+   _gates.resize(_M + _O + 1); fill(_gates.begin(), _gates.end(), (CirGate*)NULL);
 
    // Set Constant False
    _gates[0] = new CirConstGate();
@@ -216,12 +218,12 @@ CirMgr::readCircuit(const string& fileName)
    // Record Marker
    pos_o = file.tellg();
 
-   // Number ID of POs in range [_M, _M + _O - 1]
+   // Number ID of POs in range [_M + 1, _M + _O]
    for (int o = 0; o < _O; ++o)
    {
       file >> i1;
       _pout.push_back(_M + o + 1);
-      _gates[_M + o + 1] = new CirPOGate(o, lineNo);
+      _gates[_M + o + 1] = new CirPOGate(_M + o + 1, lineNo);
       ++lineNo;      
    }
    
@@ -233,18 +235,53 @@ CirMgr::readCircuit(const string& fileName)
    {
       file >> i1 >> i2 >> i3;
       _aig.push_back(i1 / 2);
-      _gates[i1 / 2] = new CirAIGate(i1 / 2, lineNo); 
+      _gates[i1 / 2] = new CirAIGate(i1 / 2, lineNo);
       ++lineNo;
    }
 
-   // loadSymbol(tmp);
+   /*
+    * Load Symbol
+    * 
+    * If getline() and sscanf() successfully
+   */
+   while (true)
+   {
+      if (file.peek() == '\n') file.get();
+      if (file.peek() == 'c') break;
+      if (file.peek() == EOF) break;
+
+      getline(file, tmp);
+      
+      if (sscanf(tmp.c_str(), "%c%u %s", &type, &i1, buf) == 3)
+      {
+         tmp2 = string(buf);
+         if (type == 'i')  loadSymbol(i1 + 1, tmp2);
+         if (type == 'o')  loadSymbol(_M + i1 + 1, tmp2);
+      }
+      else
+      {
+         break;
+      }
+      
+   }
+
+   /*
+    * Load Comment
+   */
    // loadComment(tmp);
 
    // Reset LineNo to 0
    lineNo = 0;
 
    /*
-    * Connect the Circuit Units
+    * Connecting AIG.
+    *  
+    * Before connecting the circuit... the connecting information 
+    * is keeped by only CirAIGate._fanout.
+    * 
+    * After connecting the circuit... each CirGate can see the 
+    * ascenders (CirGate._fanin) and descenders (CirGate._fanout).
+    * 
     * - CirPOGate
     * - CirAIGate
     * 
@@ -254,78 +291,79 @@ CirMgr::readCircuit(const string& fileName)
     */
 
    // Load the fanin information.
-   file.seekg(pos_o);
+   file.clear();  file.seekg(pos_o, ios::beg); 
 
    // Connect Output
    for (int o = 0; o < _O; ++o)
    {
       file >> i1;
       _gates[_M + o + 1]->addFanin(getGate(i1 / 2), i1 % 2);
+      _gates[i1 / 2]->addFanout(getGate(_M + o + 1), i1 % 2);
    }
 
    // Connect And-Inverter Gate
    for (int a = 0; a < _A; ++a)
    {
       file >> i1 >> i2 >> i3;
-      
+
       // if i2 is Undefined
-      if (!_gates[i2])
+      if (!_gates[i2 / 2])
       {
-         _undefined.push_back(i2);
-         _gates[i2] = new CirUndefGate(i2);
+         // _floating.push_back(i1 / 2);
+         _gates[i2 / 2] = new CirUndefGate(i2 / 2);
       }   
       
       // if i3 is Undefined
-      if (!_gates[i3])
+      if (!_gates[i3 / 2])
       {
-         _undefined.push_back(i3);
-         _gates[i3] = new CirUndefGate(i3);
+         // _floating.push_back(i1 / 2);
+         _gates[i3 / 2] = new CirUndefGate(i3 / 2);
       }
          
-      // i2 and i3 is the fanin of i1
-      _gates[i1]->addFanin(getGate(i2), i2 % 2);  
-      _gates[i1]->addFanin(getGate(i3), i3 % 2);
+      // i2 and i3 are the fanins of i1
+      _gates[i1 / 2]->addFanin(getGate(i2 / 2), i2 % 2);  
+      _gates[i1 / 2]->addFanin(getGate(i3 / 2), i3 % 2);
       
       // i1 is the fanin of i2 and i3
-      _gates[i2]->addFanout(getGate(i1), i2 % 2); 
-      _gates[i3]->addFanout(getGate(i1), i3 % 2);
+      _gates[i2 / 2]->addFanout(getGate(i1 / 2), i2 % 2); 
+      _gates[i3 / 2]->addFanout(getGate(i1 / 2), i3 % 2);
    }
 
-   // Find out the floating gate
+   // Find out the defined but not in used gates
    for (auto it : _aig)
    {
-      isFloating = false;
-
-      // Search _fanin
-      for (auto it1 : getGate(it)->_fanin)
-      {
-         if (!it1) { isFloating = true; break;}
-      }
-
-      // Search _fanout
-      for (auto it2 : getGate(it)->_fanout)
-      {
-         if (!it2) { isFloating = true; break;}
-      }
-
-      if (isFloating) { _floating.push_back(it); }
-   }
-
-   // Find out the defined but not in used gates using DFS
-   /*
-   CirGate::raiseGlobalMarker();
-
-   for (auto it : _pout)
-      frontier.push(getGate(it));
-
-   DepthFirstTraversal(frontier, 0);
-
-   for (auto it : _aig)
-   {
-      if (!getGate(it)->isMarked())
+      if (!getGate(it)->_fanout.size())
          _notused.push_back(it);
    }
-   */
+
+   for (auto it : _pin)
+   {
+      if (!getGate(it)->_fanout.size())
+         _notused.push_back(it);
+   }
+
+   // Find out the undefined gates (floating)
+   for (auto it : _aig)
+   {
+      for (auto it2 : getGate(it)->_fanin)
+      {
+         if (CirGate::gate(it2)->isFloating())
+            _floating.push_back(it);
+      }
+   }
+
+   for (auto it : _pout)
+   {
+      for (auto it2 : getGate(it)->_fanin)
+      {
+         if (CirGate::gate(it2)->isFloating())
+            _floating.push_back(it);
+      }
+   }
+
+   // Sorting the vector
+   sort(_floating.begin(), _floating.end());
+   sort(_notused.begin(), _notused.end());
 
    return true;
 }
@@ -347,7 +385,8 @@ Circuit Statistics
 void
 CirMgr::printSummary() const
 {
-   cout << "Circuit Statistics" << endl
+   cout << endl
+        << "Circuit Statistics" << endl
         << "==================" << endl
         << "  PI   " << right << setw(9) << _pin.size()  << endl
         << "  PO   " << right << setw(9) << _pout.size() << endl
@@ -356,25 +395,103 @@ CirMgr::printSummary() const
         << "  Total" << right << setw(9) << _pin.size() + _pout.size() + _aig.size() << endl;
 }
 
+/*
+   Forward (from PIn to POut) printing
+*/
 void
 CirMgr::printNetlist() const
 {
+   CirGate* tmp;
+   stack<CirGate*> frontier;
+   stack<CirGate*> explored_set;
+   vector<CirGate*> printed_set;
+
+   // Raise up global marker
+   CirGate::raiseGlobalMarker();
    
+   // Reset Parameters
+   lineNo = 0;
+
+   // Pre-Spacing
+   cout << endl;
+
+   /*
+    * Algorithm description:
+    * 
+    * Search for all POut, stop when only all PIns were found.
+    * (To be optimized)
+   */
+   for (auto it : _pout)
+   {
+      frontier.push(getGate(it));
+   
+      while (frontier.size())
+      {
+         // Take the element out
+         tmp = frontier.top();  frontier.pop(); 
+
+         // Save to the explored stack
+         explored_set.push(tmp); 
+
+         // If have already seen the element, ignore it
+         // if (tmp->isMarked()) continue; 
+
+         // Mark the Gate, and push the element in frontier
+         tmp->mark();
+
+         // Only push defined gate to the frontier.
+         for (auto it2 : tmp->_fanin)
+         {
+            if (!CirGate::gate(it2)->isFloating()) frontier.push(CirGate::gate(it2));
+         }
+      }
+
+      while (explored_set.size())
+      {
+         // Take the element out
+         tmp = explored_set.top();  explored_set.pop();
+         
+         // Don't print again
+         if (find(printed_set.begin(), printed_set.end(), tmp) != printed_set.end()) continue;
+
+         // Marked with set
+         printed_set.push_back(tmp);
+
+         // Print the gate type
+         cout << '[' << lineNo << ']' << ' ' << setw(4) << left << tmp->getTypeStr() << tmp->_gateId;
+         
+         // Print fanins if it is AIG gate
+         for (auto it2 : tmp->_fanin)
+         {
+            cout << ' ';
+            if (CirGate::gate(it2)->isFloating())     cout << '*';
+            if (CirGate::isInv(it2))                  cout << '!';
+            cout << CirGate::gate(it2)->_gateId;
+         }
+
+         // Print if the gate has Symbol
+         if (tmp->hasSymbol())   cout << " (" << tmp->_symbol << ')'; 
+
+         cout << endl;
+
+         ++lineNo;
+      }
+   }
 }
 
 void
 CirMgr::printPIs() const
 {
-   cout << "PIs of the circuit: ";
-   for (auto it : _pin) cout << it << ' ';
+   cout << "PIs of the circuit:";
+   for (auto it : _pin) cout << ' ' << it;
    cout << endl;
 }
 
 void
 CirMgr::printPOs() const
 {
-   cout << "POs of the circuit: ";
-   for (auto it : _pout) cout << it << ' ';
+   cout << "POs of the circuit:";
+   for (auto it : _pout) cout << ' ' << it;
    cout << endl;
 }
 
@@ -390,15 +507,15 @@ CirMgr::printFloatGates() const
 {
    if (!_floating.empty())
    {
-      cout << "Gates with floating fanin(s): ";
-      for (auto it : _floating) cout << it << ' ';
+      cout << "Gates with floating fanin(s):";
+      for (auto it : _floating) cout << ' ' << it;
       cout << endl;
    }
 
    if (!_notused.empty())
    {
-      cout << "Gates defined but not used  : ";
-      for (auto it : _notused)  cout << it << ' ';
+      cout << "Gates defined but not used  :";
+      for (auto it : _notused)  cout << ' ' << it;
       cout << endl;
    }
 }
@@ -412,7 +529,9 @@ CirMgr::writeAag(ostream& outfile) const
 void
 CirMgr::reset()
 {
-   _M = _I = _L = _O = _A = 0;   cirMgr = NULL;
+   _M = _I = _L = _O = _A = 0;   
+   for (auto it : _gates)  delete it;
+   cirMgr = NULL;
 }
 
 /**********************************************************/
@@ -465,8 +584,8 @@ CirMgr::DepthFirstTraversal(stack<CirGate*> &frontier, const unsigned int &depth
 
       for (auto it : tmp->_fanin)
       {
-         frontier.push(it);
-         it->_fanout.push_back(tmp);
+         frontier.push(CirGate::gate(it));
+         CirGate::gate(it)->_fanout.push_back(tmp);
       }  
    }
 }
@@ -544,7 +663,7 @@ CirMgr::loadOutput(const unsigned int &id, const unsigned int &fanin)
 {
    _pout.push_back(id);
    _gates[id] = new CirPOGate(id, lineNo);
-
+   
    return true;
 }
 
@@ -566,8 +685,9 @@ CirMgr::loadAIG(const unsigned int &id, const unsigned int &i1, const unsigned i
 }
 
 bool 
-CirMgr::loadSymbol(const string &s)
+CirMgr::loadSymbol(const unsigned int &id, const string &s)
 {
+   _gates[id]->_symbol = s;
    return true;
 }
 
@@ -578,33 +698,18 @@ CirMgr::loadComment(const string &s)
 }
 
 /*
-   Connecting AIG.
+   Connect 2 gates.
 
-   Before connecting the circuit... the connecting information 
-   is keeped by only CirAIGate._fanout.
-
-   After connecting the circuit... each CirGate can see the 
-   ascenders (CirGate._fanin) and descenders (CirGate._fanout).
-
+   @param ascender, descender
+      Fanin / Fanout
    @return bool
       True if successfully connect the Circuit
 */
 bool
-CirMgr::connect()
+CirMgr::connect(const unsigned int &ascender, const unsigned int &descender)
 {
-   /*
-   CirGate* tmp;
-
-   for (auto &it : _aig)
-   {
-      tmp = getGate(it);
-      
-      for (auto &it2 : tmp->_fanin)
-      {
-         it2->_fanout.push_back(tmp);
-      }
-   }
-   */
+   // getGate(ascender / 2)->addFanout(getGate(descender / 2), ascender % 2);
+   // getGate(descender / 2)->addFanin(getGate(ascender / 2), ascender % 2);
 
    return true;
 }

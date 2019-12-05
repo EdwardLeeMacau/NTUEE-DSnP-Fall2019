@@ -50,11 +50,20 @@ protected:
 
    static void raiseGlobalMarker() { ++_globalMarker; }
    static bool isInv(size_t c) { return c & size_t(NEG); }
+   static bool isInv(CirGate* c) { return (size_t)c & size_t(NEG); }
+   static unsigned int getNum(CirGate* c) { return (unsigned int)(size_t)c; }
+   static CirGate* setNum(size_t n) { return (CirGate*)n; }
+   static CirGate* setNum(unsigned int n) { return (CirGate*)(size_t)n; }
    static CirGate* setInv(size_t c) { return (CirGate*)(c | size_t(NEG)); }
+   static CirGate* setInv(CirGate* c) { return (CirGate*)((size_t)c | size_t(NEG)); }
    static CirGate* gate(size_t c) { return (CirGate*)(c & ~size_t(NEG)); }
+   static CirGate* gate(CirGate* c) { return (CirGate*)((size_t)c &~size_t(NEG)); }
+
+   virtual bool isFloating() { return false; }
 
    void mark() { _marker = _globalMarker; }
    bool isMarked() { return _marker == _globalMarker; }
+   bool hasSymbol() { return _symbol != ""; }
    void addFanin(CirGate* c, bool isInv);
    void addFanout(CirGate* c, bool isInv);
    
@@ -75,7 +84,7 @@ public:
    ~CirConstGate() {}
 
    // Basic access methods
-   string getTypeStr() const { return "False"; }
+   string getTypeStr() const { return "CONST"; }
 
    // Print function
    void printGate() const;                // Self Printing Format
@@ -90,6 +99,9 @@ public:
 
    // Basic access methods
    string getTypeStr() const { return "UNDEF"; }
+
+   // Special Designed For CirUndefGate
+   bool isFloating() { return true; }
 
    // Print function
    void printGate() const;

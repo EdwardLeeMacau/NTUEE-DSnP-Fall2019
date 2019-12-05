@@ -10,6 +10,7 @@
 #define CIR_MGR_H
 
 #include <algorithm>
+#include <unordered_set>
 #include <vector>
 #include <stack>
 #include <string>
@@ -56,15 +57,15 @@ private:
    bool loadInput(const unsigned int&);
    bool loadOutput(const unsigned int&, const unsigned int&);
    bool loadAIG(const unsigned int&, const unsigned int&, const unsigned int&);
-   bool loadSymbol(const string&);
+   bool loadSymbol(const unsigned int&, const string&);
    bool loadComment(const string&);
-   bool connect();
+   bool connect(const unsigned int &, const unsigned int &);
 
-   vector<unsigned int> _pin;       // PIn
-   vector<unsigned int> _pout;      // POut
+   vector<unsigned int> _pin;       // PinIn Number
+   vector<unsigned int> _pout;      // PinOut Number
    vector<unsigned int> _aig;       // AIGs Number
    vector<unsigned int> _floating;  // Floating Gates
-   vector<unsigned int> _undefined; // Undefined Gates
+   // vector<unsigned int> _undefined; // Undefined Gates
    vector<unsigned int> _notused;   // Not in used Gates
    vector<CirGate*>     _gates;
 

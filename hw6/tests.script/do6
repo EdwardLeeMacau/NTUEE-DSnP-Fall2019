@@ -1,4 +1,4 @@
-cirr opt01.aag
+cirr ./tests.fraig/opt01.aag
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -11,7 +11,7 @@ cirg 3 -fanin 2
 cirg 4 -fanin 0
 cirg 4 -fanin 1
 cirg 4 -fanin 2
-cirr opt02.aag -r
+cirr ./tests.fraig/opt02.aag -r
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -24,7 +24,7 @@ cirg 3 -fanin 2
 cirg 4 -fanin 0
 cirg 4 -fanin 1
 cirg 4 -fanin 2
-cirr opt03.aag -r
+cirr ./tests.fraig/opt03.aag -r
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -37,7 +37,7 @@ cirg 3 -fanin 2
 cirg 4 -fanin 0
 cirg 4 -fanin 1
 cirg 4 -fanin 2
-cirr opt04.aag -r
+cirr ./tests.fraig/opt04.aag -r
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -50,7 +50,7 @@ cirg 3 -fanin 2
 cirg 4 -fanin 0
 cirg 4 -fanin 1
 cirg 4 -fanin 2
-cirr opt05.aag -r
+cirr ./tests.fraig/opt05.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -136,7 +136,7 @@ cirg 16 -fanin 1
 cirg 16 -fanin 2
 cirg 16 -fanin 3
 cirg 16 -fanin 4
-cirr opt06.aag -r
+cirr ./tests.fraig/opt06.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -222,7 +222,7 @@ cirg 16 -fanin 1
 cirg 16 -fanin 2
 cirg 16 -fanin 3
 cirg 16 -fanin 4
-cirr sim01.aag -r
+cirr ./tests.fraig/sim01.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -288,7 +288,7 @@ cirg 12 -fanin 1
 cirg 12 -fanin 2
 cirg 12 -fanin 3
 cirg 12 -fanin 4
-cirr sim02.aag -r
+cirr ./tests.fraig/sim02.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -354,7 +354,7 @@ cirg 12 -fanin 1
 cirg 12 -fanin 2
 cirg 12 -fanin 3
 cirg 12 -fanin 4
-cirr sim03.aag -r
+cirr ./tests.fraig/sim03.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -420,7 +420,7 @@ cirg 12 -fanin 1
 cirg 12 -fanin 2
 cirg 12 -fanin 3
 cirg 12 -fanin 4
-cirr sim04.aag -r
+cirr ./tests.fraig/sim04.aag -r
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -433,7 +433,7 @@ cirg 3 -fanin 2
 cirg 4 -fanin 0
 cirg 4 -fanin 1
 cirg 4 -fanin 2
-cirr sim05.aag -r
+cirr ./tests.fraig/sim05.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -519,9 +519,9 @@ cirg 16 -fanin 1
 cirg 16 -fanin 2
 cirg 16 -fanin 3
 cirg 16 -fanin 4
-cirr sim06.aag -r
-cirr sim07.aag -r
-cirr sim08.aag -r
+cirr ./tests.fraig/sim06.aag -r
+cirr ./tests.fraig/sim07.aag -r
+cirr ./tests.fraig/sim08.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -587,9 +587,9 @@ cirg 12 -fanin 1
 cirg 12 -fanin 2
 cirg 12 -fanin 3
 cirg 12 -fanin 4
-cirr sim09.aag -r
-cirr sim10.aag -r
-cirr sim11.aag -r
+cirr ./tests.fraig/sim09.aag -r
+cirr ./tests.fraig/sim10.aag -r
+cirr ./tests.fraig/sim11.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -635,72 +635,11 @@ cirg 8 -fanin 1
 cirg 8 -fanin 2
 cirg 8 -fanin 3
 cirg 8 -fanin 4
-cirr sim12.aag -r
-cirr sim13.aag -r
-cirr sim14.aag -r
-cirr sim15.aag -r
-cirr strash01.aag -r
-cirg 0 -fanin 0
-cirg 0 -fanin 1
-cirg 0 -fanin 2
-cirg 0 -fanin 3
-cirg 0 -fanin 4
-cirg 1 -fanin 0
-cirg 1 -fanin 1
-cirg 1 -fanin 2
-cirg 1 -fanin 3
-cirg 1 -fanin 4
-cirg 2 -fanin 0
-cirg 2 -fanin 1
-cirg 2 -fanin 2
-cirg 2 -fanin 3
-cirg 2 -fanin 4
-cirg 3 -fanin 0
-cirg 3 -fanin 1
-cirg 3 -fanin 2
-cirg 3 -fanin 3
-cirg 3 -fanin 4
-cirg 4 -fanin 0
-cirg 4 -fanin 1
-cirg 4 -fanin 2
-cirg 4 -fanin 3
-cirg 4 -fanin 4
-cirg 5 -fanin 0
-cirg 5 -fanin 1
-cirg 5 -fanin 2
-cirg 5 -fanin 3
-cirg 5 -fanin 4
-cirg 6 -fanin 0
-cirg 6 -fanin 1
-cirg 6 -fanin 2
-cirg 6 -fanin 3
-cirg 6 -fanin 4
-cirg 7 -fanin 0
-cirg 7 -fanin 1
-cirg 7 -fanin 2
-cirg 7 -fanin 3
-cirg 7 -fanin 4
-cirg 8 -fanin 0
-cirg 8 -fanin 1
-cirg 8 -fanin 2
-cirg 8 -fanin 3
-cirg 8 -fanin 4
-cirg 9 -fanin 0
-cirg 9 -fanin 1
-cirg 9 -fanin 2
-cirg 9 -fanin 3
-cirg 9 -fanin 4
-cirg 10 -fanin 0
-cirg 10 -fanin 1
-cirg 10 -fanin 2
-cirg 10 -fanin 3
-cirg 10 -fanin 4
-cirg 11 -fanin 0
-cirg 11 -fanin 1
-cirg 11 -fanin 2
-cirg 11 -fanin 3
-cirg 11 -fanin 4
-cirr strash02.aag -r
+cirr ./tests.fraig/sim12.aag -r
+cirr ./tests.fraig/sim13.aag -r
+cirr ./tests.fraig/sim14.aag -r
+cirr ./tests.fraig/sim15.aag -r
+cirr ./tests.fraig/strash01.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -761,7 +700,7 @@ cirg 11 -fanin 1
 cirg 11 -fanin 2
 cirg 11 -fanin 3
 cirg 11 -fanin 4
-cirr strash03.aag -r
+cirr ./tests.fraig/strash02.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -822,7 +761,7 @@ cirg 11 -fanin 1
 cirg 11 -fanin 2
 cirg 11 -fanin 3
 cirg 11 -fanin 4
-cirr strash04.aag -r
+cirr ./tests.fraig/strash03.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -883,7 +822,7 @@ cirg 11 -fanin 1
 cirg 11 -fanin 2
 cirg 11 -fanin 3
 cirg 11 -fanin 4
-cirr strash05.aag -r
+cirr ./tests.fraig/strash04.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -944,7 +883,68 @@ cirg 11 -fanin 1
 cirg 11 -fanin 2
 cirg 11 -fanin 3
 cirg 11 -fanin 4
-cirr strash06.aag -r
+cirr ./tests.fraig/strash05.aag -r
+cirg 0 -fanin 0
+cirg 0 -fanin 1
+cirg 0 -fanin 2
+cirg 0 -fanin 3
+cirg 0 -fanin 4
+cirg 1 -fanin 0
+cirg 1 -fanin 1
+cirg 1 -fanin 2
+cirg 1 -fanin 3
+cirg 1 -fanin 4
+cirg 2 -fanin 0
+cirg 2 -fanin 1
+cirg 2 -fanin 2
+cirg 2 -fanin 3
+cirg 2 -fanin 4
+cirg 3 -fanin 0
+cirg 3 -fanin 1
+cirg 3 -fanin 2
+cirg 3 -fanin 3
+cirg 3 -fanin 4
+cirg 4 -fanin 0
+cirg 4 -fanin 1
+cirg 4 -fanin 2
+cirg 4 -fanin 3
+cirg 4 -fanin 4
+cirg 5 -fanin 0
+cirg 5 -fanin 1
+cirg 5 -fanin 2
+cirg 5 -fanin 3
+cirg 5 -fanin 4
+cirg 6 -fanin 0
+cirg 6 -fanin 1
+cirg 6 -fanin 2
+cirg 6 -fanin 3
+cirg 6 -fanin 4
+cirg 7 -fanin 0
+cirg 7 -fanin 1
+cirg 7 -fanin 2
+cirg 7 -fanin 3
+cirg 7 -fanin 4
+cirg 8 -fanin 0
+cirg 8 -fanin 1
+cirg 8 -fanin 2
+cirg 8 -fanin 3
+cirg 8 -fanin 4
+cirg 9 -fanin 0
+cirg 9 -fanin 1
+cirg 9 -fanin 2
+cirg 9 -fanin 3
+cirg 9 -fanin 4
+cirg 10 -fanin 0
+cirg 10 -fanin 1
+cirg 10 -fanin 2
+cirg 10 -fanin 3
+cirg 10 -fanin 4
+cirg 11 -fanin 0
+cirg 11 -fanin 1
+cirg 11 -fanin 2
+cirg 11 -fanin 3
+cirg 11 -fanin 4
+cirr ./tests.fraig/strash06.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -1009,7 +1009,7 @@ cirg 12 -fanin 1
 cirg 12 -fanin 2
 cirg 12 -fanin 3
 cirg 12 -fanin 4
-cirr strash07.aag -r
+cirr ./tests.fraig/strash07.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -1055,7 +1055,7 @@ cirg 8 -fanin 1
 cirg 8 -fanin 2
 cirg 8 -fanin 3
 cirg 8 -fanin 4
-cirr strash08.aag -r
+cirr ./tests.fraig/strash08.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -1101,7 +1101,7 @@ cirg 8 -fanin 1
 cirg 8 -fanin 2
 cirg 8 -fanin 3
 cirg 8 -fanin 4
-cirr strash09.aag -r
+cirr ./tests.fraig/strash09.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -1162,7 +1162,7 @@ cirg 11 -fanin 1
 cirg 11 -fanin 2
 cirg 11 -fanin 3
 cirg 11 -fanin 4
-cirr strash10.aag -r
+cirr ./tests.fraig/strash10.aag -r
 cirg 1 -fanin 0
 cirg 1 -fanin 1
 cirg 1 -fanin 2
@@ -1178,8 +1178,8 @@ cirg 4 -fanin 2
 cirg 5 -fanin 0
 cirg 5 -fanin 1
 cirg 5 -fanin 2
-cirr test1.aag -r
-cirr test2.aag -r
+cirr ./tests.fraig/test1.aag -r
+cirr ./tests.fraig/test2.aag -r
 cirg 0 -fanin 0
 cirg 0 -fanin 1
 cirg 0 -fanin 2
@@ -1306,3 +1306,4 @@ cirg 20 -fanin 2
 cirg 20 -fanin 3
 cirg 20 -fanin 4
 cirg 20 -fanin 5
+Quit -f

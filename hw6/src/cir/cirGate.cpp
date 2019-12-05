@@ -28,17 +28,33 @@ unsigned int CirGate::_globalMarker = 0;
 /*   class CirGate member functions   */
 /**************************************/
 
+/*
+   Append CirGate* to _fanin
+
+   @param c
+      Fanin in type CirGate*
+   @param isInv
+      If True, store 0x1 at the LSB of CirGate*
+*/
 void 
 CirGate::addFanin(CirGate* c, bool isInv)
 {
-   if (isInv) c = CirGate::setInv((size_t)c);
+   if (isInv) c = CirGate::setInv(c);
    _fanin.push_back(c);
 }
 
+/*
+   Append CirGate* to _fanout
+
+   @param c
+      Fanout in type CirGate*
+   @param isInv
+      If True, store 0x1 at the LSB of CirGate*
+*/
 void
 CirGate::addFanout(CirGate* c, bool isInv)
 {
-   if (isInv) c = CirGate::setInv((size_t)c);
+   if (isInv) c = CirGate::setInv(c);
    _fanout.push_back(c);
 }
 
@@ -51,9 +67,23 @@ CirGate::addFanout(CirGate* c, bool isInv)
 void
 CirGate::reportGate() const
 {
-   cout << "==================================================" << endl
-        << "= " << getTypeStr() << '(' << _gateId << ") line " << _lineno << endl
-        << "==================================================" << endl;
+   stringstream ss;
+   cout << "==================================================" << endl;
+
+   // Store informations in stringstream   
+   ss << "= " << getTypeStr() << '(' << _gateId << ")";
+   if (_symbol != "") { ss << '"' << _symbol << '"';}
+   ss << ", line " << _lineno;
+   
+   // Get Lenght of StringStream, fill with space
+   ss.seekp(0, ios::end);  
+   if (49 - ss.tellp() > 0) { ss << string(49 - ss.tellp(), ' '); ss << '='; }
+   ss.seekp(0, ios::beg);
+
+   // Release string to cout.
+   cout << ss.str() << endl;
+
+   cout << "==================================================" << endl;
 }
 
 void

@@ -1,4 +1,4 @@
-cirr C17.aag
+cirr ./tests.fraig/C17.aag
 cirp
 cirp -pi
 cirp -po
@@ -8,7 +8,7 @@ cirw
 cirg 13 -fanin 10
 cirg 14 -fanin 10
 
-cirr C432.aag -r
+cirr ./tests.fraig/C432.aag -r
 cirp
 cirp -pi
 cirp -po
@@ -23,7 +23,7 @@ cirg 351 -fanin 30
 cirg 352 -fanin 30
 cirg 353 -fanin 30
 
-cirr C432_r.aag -r
+cirr ./tests.fraig/C432_r.aag -r
 cirp
 cirp -pi
 cirp -po
@@ -38,7 +38,7 @@ cirg 347 -fanin 30
 cirg 348 -fanin 30
 cirg 349 -fanin 30
 
-cirr C499.aag -r
+cirr ./tests.fraig/C499.aag -r
 cirp
 cirp -pi
 cirp -po
@@ -78,7 +78,7 @@ cirg 661 -fanin 50
 cirg 662 -fanin 50
 cirg 663 -fanin 50
 
-cirr C499_r.aag -r
+cirr ./tests.fraig/C499_r.aag -r
 cirp
 cirp -pi
 cirp -po
@@ -118,7 +118,7 @@ cirg 525 -fanin 50
 cirg 526 -fanin 50
 cirg 527 -fanin 50
 
-cirr C880.aag -r
+cirr ./tests.fraig/C880.aag -r
 cirp
 cirp -pi
 cirp -po
@@ -151,3 +151,4 @@ cirg 543 -fanin 50
 cirg 544 -fanin 50
 cirg 545 -fanin 50
 cirg 546 -fanin 50
+Quit -f

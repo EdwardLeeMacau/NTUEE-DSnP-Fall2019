@@ -1,66 +1,67 @@
-cirr opt01.aag
+cirr ./tests.fraig/opt01.aag
 cirw
-cirr opt02.aag -r
+cirr ./tests.fraig/opt02.aag -r
 cirw
-cirr opt03.aag -r
+cirr ./tests.fraig/opt03.aag -r
 cirw
-cirr opt04.aag -r
+cirr ./tests.fraig/opt04.aag -r
 cirw
-cirr opt05.aag -r
+cirr ./tests.fraig/opt05.aag -r
 cirw
-cirr opt06.aag -r
+cirr ./tests.fraig/opt06.aag -r
 cirw
-cirr sim01.aag -r
+cirr ./tests.fraig/sim01.aag -r
 cirw
-cirr sim02.aag -r
+cirr ./tests.fraig/sim02.aag -r
 cirw
-cirr sim03.aag -r
+cirr ./tests.fraig/sim03.aag -r
 cirw
-cirr sim04.aag -r
+cirr ./tests.fraig/sim04.aag -r
 cirw
-cirr sim05.aag -r
+cirr ./tests.fraig/sim05.aag -r
 cirw
-cirr sim06.aag -r
+cirr ./tests.fraig/sim06.aag -r
 cirw
-cirr sim07.aag -r
+cirr ./tests.fraig/sim07.aag -r
 cirw
-cirr sim08.aag -r
+cirr ./tests.fraig/sim08.aag -r
 cirw
-cirr sim09.aag -r
+cirr ./tests.fraig/sim09.aag -r
 cirw
-cirr sim10.aag -r
+cirr ./tests.fraig/sim10.aag -r
 cirw
-cirr sim11.aag -r
+cirr ./tests.fraig/sim11.aag -r
 cirw
-cirr sim12.aag -r
+cirr ./tests.fraig/sim12.aag -r
 cirw
-cirr sim13.aag -r
+cirr ./tests.fraig/sim13.aag -r
 cirw
-cirr sim14.aag -r
+cirr ./tests.fraig/sim14.aag -r
 cirw
-cirr sim15.aag -r
+cirr ./tests.fraig/sim15.aag -r
 cirw
-cirr strash01.aag -r
+cirr ./tests.fraig/strash01.aag -r
 cirw
-cirr strash02.aag -r
+cirr ./tests.fraig/strash02.aag -r
 cirw
-cirr strash03.aag -r
+cirr ./tests.fraig/strash03.aag -r
 cirw
-cirr strash04.aag -r
+cirr ./tests.fraig/strash04.aag -r
 cirw
-cirr strash05.aag -r
+cirr ./tests.fraig/strash05.aag -r
 cirw
-cirr strash06.aag -r
+cirr ./tests.fraig/strash06.aag -r
 cirw
-cirr strash07.aag -r
+cirr ./tests.fraig/strash07.aag -r
 cirw
-cirr strash08.aag -r
+cirr ./tests.fraig/strash08.aag -r
 cirw
-cirr strash09.aag -r
+cirr ./tests.fraig/strash09.aag -r
 cirw
-cirr strash10.aag -r
+cirr ./tests.fraig/strash10.aag -r
 cirw
-cirr test1.aag -r
+cirr ./tests.fraig/test1.aag -r
 cirw
-cirr test2.aag -r
+cirr ./tests.fraig/test2.aag -r
 cirw
+Quit -f
