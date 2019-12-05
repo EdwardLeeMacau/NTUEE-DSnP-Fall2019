@@ -41,12 +41,15 @@ public:
    // Printing functions
    virtual void printGate() const = 0;
    virtual void reportGate() const;
-   virtual void reportFanin(int level) const;
-   virtual void reportFanout(int level) const;
+   virtual void reportFanin(int level);
+   virtual void reportFanout(int level);
 
 private:
 
 protected:
+
+   virtual void reportFanin(int level, int indent, bool invert);
+   virtual void reportFanout(int level, int indent, bool invert);
 
    static void raiseGlobalMarker() { ++_globalMarker; }
    static bool isInv(size_t c) { return c & size_t(NEG); }
@@ -88,7 +91,7 @@ public:
 
    // Print function
    void printGate() const;                // Self Printing Format
-   void reportFanin(int level) const {};  // None of Fanin
+   // void reportFanin(int level) const {};  // None of Fanin
 };
 
 class CirUndefGate : public CirGate 
@@ -105,8 +108,8 @@ public:
 
    // Print function
    void printGate() const;
-   void reportFanin(int level) const {};
-   void reportFanout(int level) const {};
+   // void reportFanin(int level) const {};
+   // void reportFanout(int level) const {};
 };
 
 class CirPIGate : public CirGate 
@@ -120,7 +123,7 @@ public:
 
    // Print function
    void printGate() const;                // Self Printing Format
-   void reportFanin(int level) const {};  // None of Fanin
+   // void reportFanin(int level) const {};  // None of Fanin
 
 };
 
@@ -135,7 +138,7 @@ public:
 
    // Print function
    void printGate() const;                // Self Printing Format
-   void reportFanout(int level) const {}; // None of Fanout
+   // void reportFanout(int level) const {}; // None of Fanout
 
 };
 

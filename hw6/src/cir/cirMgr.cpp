@@ -51,7 +51,7 @@ enum CirParseError {
 /**************************************/
 /*   Static varaibles and functions   */
 /**************************************/
-static unsigned lineNo = 0;  // in printint, lineNo needs to ++
+static unsigned lineNo = 0;  // in printing, lineNo needs to ++
 static unsigned colNo  = 0;  // in printing, colNo needs to ++
 static char buf[1024];
 static string errMsg;
@@ -180,13 +180,15 @@ CirMgr::readCircuit(const string& fileName)
 
    // Parsing Circuit Variables
    unsigned int i1, i2, i3;
+   fstream file;
    streampos pos_o;
-   fstream file(fileName);
    string tmp, tmp2;
    char type;
-   bool isFloating;
 
-   // Open File
+   // Open File   
+   file.open(fileName);
+
+   // Check if open error
    if (!file.good())
    {
       cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
@@ -195,6 +197,15 @@ CirMgr::readCircuit(const string& fileName)
 
    // Set LineNo
    lineNo = 1;
+
+   /*
+    * Parsing AIGER here with loop
+    * 
+   */
+   while (true)
+   {
+      break;
+   }
 
    // Get Header
    getline(file, tmp);
@@ -361,6 +372,9 @@ CirMgr::readCircuit(const string& fileName)
       }
    }
 
+   // Close fstream
+   file.close();
+
    // Sorting the vector
    sort(_floating.begin(), _floating.end());
    sort(_notused.begin(), _notused.end());
@@ -523,14 +537,52 @@ CirMgr::printFloatGates() const
 void
 CirMgr::writeAag(ostream& outfile) const
 {
+   CirGate* tmp;
 
+   // Header
+   outfile << "aag " << _M << " " << _I << " " << _L << " " <<  _O << " " << _A << endl;
+   
+   // Input, Output, AIG
+   for (auto it : _pin)  outfile << 2 * it << endl;
+   for (auto it : _pout) 
+   {
+      tmp = getGate(it)->_fanin[0];
+      outfile << ((CirGate::isInv(tmp))? (2 * CirGate::gate(tmp)->_gateId + 1): (2 * tmp->_gateId)) << endl;
+   }
+   for (auto it : _aig)  
+   {
+      outfile << 2 * it;
+      for (auto it2 : getGate(it)->_fanin)
+         outfile << ' ' << ((CirGate::isInv(it2))? (2 * it2->_gateId + 1) : (2 * it2->_gateId));
+      outfile << endl;
+   }
+
+   // Symbol
+   for (size_t i = 0; i < _pin.size(); ++i)
+   {
+      tmp = getGate(_pin[i]);
+      if (tmp->hasSymbol()) outfile << 'i' << i << tmp->_symbol << endl;
+   }
+
+   for (size_t o = 0; o < _pout.size(); ++o)
+   {
+      tmp = getGate(_pout[o]);
+      if (tmp->hasSymbol()) outfile << 'o' << o << tmp->_symbol << endl;
+   }
+
+   // Comment
 }
 
 void
 CirMgr::reset()
 {
-   _M = _I = _L = _O = _A = 0;   
+   // Reset the attribute
+   _M = _I = _L = _O = _A = 0;
+
+   // Release the memory of CirGates
    for (auto it : _gates)  delete it;
+
+   // Set the pointer as NULL
    cirMgr = NULL;
 }
 

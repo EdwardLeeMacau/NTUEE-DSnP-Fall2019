@@ -15,6 +15,7 @@
 #include <stack>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 
 using namespace std;
@@ -65,9 +66,11 @@ private:
    vector<unsigned int> _pout;      // PinOut Number
    vector<unsigned int> _aig;       // AIGs Number
    vector<unsigned int> _floating;  // Floating Gates
-   // vector<unsigned int> _undefined; // Undefined Gates
    vector<unsigned int> _notused;   // Not in used Gates
    vector<CirGate*>     _gates;
+
+   fstream _file;                   // Store the .txt file
+   stringstream _comment;           // Store the comment
 
    unsigned int _M;                 // Maximal Variable Index
    unsigned int _I;                 // Number of Inputs

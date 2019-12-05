@@ -24,6 +24,9 @@ extern CirMgr *cirMgr;
 // Initialize static data member
 unsigned int CirGate::_globalMarker = 0;
 
+// Indent
+#define INDENT 2
+
 /**************************************/
 /*   class CirGate member functions   */
 /**************************************/
@@ -58,11 +61,14 @@ CirGate::addFanout(CirGate* c, bool isInv)
    _fanout.push_back(c);
 }
 
-/*************************************************
-==================================================
-= AIG(100), line 312                             =
-==================================================
-*************************************************/
+/*
+ * Example:
+ * 
+ * ==================================================
+ * = AIG(100), line 312                             =
+ * ==================================================
+ * 
+*/
 
 void
 CirGate::reportGate() const
@@ -86,20 +92,84 @@ CirGate::reportGate() const
    cout << "==================================================" << endl;
 }
 
+// Public Function (API)
 void
-CirGate::reportFanin(int level) const
+CirGate::reportFanin(int level)
 {
    assert (level >= 0);
-
-
+   raiseGlobalMarker();
+   reportFanin(level, 0, false);
 }
 
+// Public Function (API)
 void
-CirGate::reportFanout(int level) const
+CirGate::reportFanout(int level)
 {
    assert (level >= 0);
+   raiseGlobalMarker();
+   reportFanout(level, 0, false);
+}
 
+// Private Function
+void
+CirGate::reportFanin(int level, int indent, bool invert)
+{
+   // Cout state of (this) CirGate, with specified indent
+   cout << string(indent, ' ');
+   if (invert) cout << '!';
+   cout << getTypeStr() << ' ' << _gateId;
    
+   // Cout (*) if the fanin was hidden
+   if (isMarked() && _fanin.size() && level) cout << " (*)";
+   
+   // End Message;
+   cout << endl;
+   
+   // Recursive Call _fanin to Report
+   if (level > 0 && !(this)->isMarked()) 
+   {
+      // Mark (this) CirGate
+      (this)->mark();
+   
+      // Call Fanins
+      indent += INDENT;
+      for (auto it : _fanin)  
+      {
+         invert = (CirGate::isInv(it))? true : false;
+         CirGate::gate(it)->reportFanin(level - 1, indent, invert);
+      }
+   }
+}
+
+// Private Function
+void
+CirGate::reportFanout(int level, int indent, bool invert)
+{
+// Cout state of (this) CirGate, with specified indent
+   cout << string(indent, ' ');
+   if (invert) cout << '!';
+   cout << getTypeStr() << ' ' << _gateId;
+   
+   // Cout (*) if the fanout was hidden
+   if (isMarked() && _fanout.size() && level) cout << " (*)";
+   
+   // End Message;
+   cout << endl;
+   
+   // Recursive Call _fanin to Report
+   if (level > 0 && !(this)->isMarked()) 
+   {
+      // Mark (this) CirGate
+      (this)->mark();
+   
+      // Call Fanins
+      indent += INDENT;
+      for (auto it : _fanout)  
+      {
+         invert = (CirGate::isInv(it))? true : false;
+         CirGate::gate(it)->reportFanout(level - 1, indent, invert);
+      }
+   }
 }
 
 /***************************************/
