@@ -10,7 +10,7 @@
 #define CIR_MGR_H
 
 #include <algorithm>
-#include <unordered_set>
+#include <list>
 #include <vector>
 #include <stack>
 #include <string>
@@ -50,9 +50,8 @@ public:
 
 private:
 
-   void DepthFirstTraversal(const unsigned int &, const unsigned int &);
-   void DepthFirstTraversal(stack<CirGate*> &, const unsigned int &);
-   void DepthFirstTraversal(stack<CirGate*> &, vector<CirGate*> &, const unsigned int &);
+   void DepthFirstTraversal(const unsigned int, list<CirGate*> &) const;
+   void DepthFirstTraversal(CirGate* , list<CirGate*> &) const;
 
    bool readHeader(const string&);
    bool loadInput(const unsigned int&);

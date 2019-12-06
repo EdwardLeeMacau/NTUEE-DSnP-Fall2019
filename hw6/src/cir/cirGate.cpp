@@ -131,12 +131,11 @@ CirGate::reportFanin(int level, int indent, bool invert)
       // Mark (this) CirGate
       (this)->mark();
    
-      // Call Fanins
+      // TODO: Call Fanins from low number to high number
       indent += INDENT;
       for (auto it : _fanin)  
       {
-         invert = (CirGate::isInv(it))? true : false;
-         CirGate::gate(it)->reportFanin(level - 1, indent, invert);
+         CirGate::gate(it)->reportFanin(level - 1, indent, (CirGate::isInv(it))? true : false);
       }
    }
 }

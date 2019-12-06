@@ -414,83 +414,50 @@ CirMgr::printSummary() const
 */
 void
 CirMgr::printNetlist() const
-{
+{;
+   list<CirGate*> dfslist;
    CirGate* tmp;
-   stack<CirGate*> frontier;
-   stack<CirGate*> explored_set;
-   vector<CirGate*> printed_set;
 
-   // Raise up global marker
+   // Raise Up Global Marker
    CirGate::raiseGlobalMarker();
-   
-   // Reset Parameters
+
+   // Reset lineNo
    lineNo = 0;
 
-   // Pre-Spacing
+   // Pre-spacing
    cout << endl;
 
-   /*
-    * Algorithm description:
-    * 
-    * Search for all POut, stop when only all PIns were found.
-    * (To be optimized)
-   */
-   for (auto it : _pout)
-   {
-      frontier.push(getGate(it));
+   // Depth First Traversal from all POut
+   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)
+      DepthFirstTraversal(*it, dfslist);
    
-      while (frontier.size())
+   // Print by the priority of dfslist
+   for (list<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
+   {
+      cout << '[' << lineNo << "] " << setw(4) << left << (*it)->getTypeStr() << (*it)->_gateId;
+
+      for (vector<CirGate*>::iterator it2 = (*it)->_fanin.begin(); it2 != (*it)->_fanin.end(); ++it2)
       {
-         // Take the element out
-         tmp = frontier.top();  frontier.pop(); 
+         tmp = CirGate::gate(*it2);
+         
+         cout << ' ';
 
-         // Save to the explored stack
-         explored_set.push(tmp); 
+         // Print "*" if needed.
+         if (tmp->isFloating())     cout << '*';
 
-         // If have already seen the element, ignore it
-         // if (tmp->isMarked()) continue; 
+         // Print "!" if needed.
+         if (CirGate::isInv(*it2))  cout << '!';
 
-         // Mark the Gate, and push the element in frontier
-         tmp->mark();
-
-         // Only push defined gate to the frontier.
-         for (auto it2 : tmp->_fanin)
-         {
-            if (!CirGate::gate(it2)->isFloating()) frontier.push(CirGate::gate(it2));
-         }
+         cout << tmp->_gateId;
       }
 
-      while (explored_set.size())
-      {
-         // Take the element out
-         tmp = explored_set.top();  explored_set.pop();
-         
-         // Don't print again
-         if (find(printed_set.begin(), printed_set.end(), tmp) != printed_set.end()) continue;
+      // Print Symbol if needed.
+      if ((*it)->hasSymbol()) cout << " (" << (*it)->_symbol << ')';
 
-         // Marked with set
-         printed_set.push_back(tmp);
-
-         // Print the gate type
-         cout << '[' << lineNo << ']' << ' ' << setw(4) << left << tmp->getTypeStr() << tmp->_gateId;
-         
-         // Print fanins if it is AIG gate
-         for (auto it2 : tmp->_fanin)
-         {
-            cout << ' ';
-            if (CirGate::gate(it2)->isFloating())     cout << '*';
-            if (CirGate::isInv(it2))                  cout << '!';
-            cout << CirGate::gate(it2)->_gateId;
-         }
-
-         // Print if the gate has Symbol
-         if (tmp->hasSymbol())   cout << " (" << tmp->_symbol << ')'; 
-
-         cout << endl;
-
-         ++lineNo;
-      }
+      cout << endl;
+      ++lineNo;
    }
+
 }
 
 void
@@ -591,88 +558,45 @@ CirMgr::reset()
 /**********************************************************/
 
 /*
-   DepthFirstSearch Algorithm.
-   
-   Search the gate from POut to PIn.
+   Overloading.
 
    @param gateID
       The gateID to start searching.
-   @param depth
-      The depth of graph to execute.
-*/
-void
-CirMgr::DepthFirstTraversal(const unsigned int &gateID, const unsigned int &depth = 0)
-{
-   stack<CirGate*> frontier;
-   frontier.push(getGate(gateID));
-   DepthFirstTraversal(frontier, 0);
-}
-
-/*
-   DepthFirstSearch Algorithm.
-   
-   Search the gate from POut(s) to PIn(s).
-
-   @param frontier
-      The gateID(s) to start searching.
-   @param depth
-      The depth of graph to execute.
-*/
-void
-CirMgr::DepthFirstTraversal(stack<CirGate*> &frontier, const unsigned int &depth = 0)
-{
-   CirGate* tmp;
-
-   while (frontier.size())
-   {
-      // Take the element out
-      tmp = frontier.top();  frontier.pop();
-
-      // If have already seen the element
-      if (tmp->isMarked()) continue;
-
-      // If have never seen the ascenders
-      tmp->mark();
-
-      for (auto it : tmp->_fanin)
-      {
-         frontier.push(CirGate::gate(it));
-         CirGate::gate(it)->_fanout.push_back(tmp);
-      }  
-   }
-}
-
-/*
-   DepthFirstSearch Algorithm.
-   
-   Search the gate from POut(s) to PIn(s).
-
-   @param frontier
-      The gateID to start searching.
    @param dfslist
       The gateID List
-   @param depth
-      The depth of graph to execute.
 */
 void
-CirMgr::DepthFirstTraversal(stack<CirGate*> &frontier, vector<CirGate*> &dfslist, const unsigned int &depth = 0)
+CirMgr::DepthFirstTraversal(const unsigned int gateID, list<CirGate*> &dfslist) const
 {
-   CirGate* tmp;
+   DepthFirstTraversal(getGate(gateID), dfslist);
+}
 
-   while (frontier.size())
-   {
-      // Take the element out
-      tmp = frontier.top();  frontier.pop();
+/*
+   DepthFirstSearch Algorithm, implemented by recursive
+   
+   Search gates from POut(s) to PIn(s). 
+   
+   Include floating gates
 
-      // If have already seen the element, ignore it
-      if (tmp->isMarked()) continue;
+   @param c
+      The start point of CirGate
+   @param dfslist
+      The gateID List
+*/
+void
+CirMgr::DepthFirstTraversal(CirGate* c, list<CirGate*> &dfslist) const
+{
+   // If have already seen the element, ignore it
+   if (c->isMarked() || c->isFloating()) return;
 
-      // Else, mark the Gate
-      tmp->mark();
+   // Mark the Gate
+   c->mark();
 
-      for (auto it : tmp->_fanin)
-         frontier.push(it);
-   }
+   // Left -> Rigth -> Center
+   for (vector<CirGate*>::iterator it = c->_fanin.begin(); it != c->_fanin.end(); ++it)
+      DepthFirstTraversal(CirGate::gate(*it), dfslist);
+      
+   dfslist.push_back(c);
 }
 
 bool
