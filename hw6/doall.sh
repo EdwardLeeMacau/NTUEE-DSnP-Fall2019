@@ -48,3 +48,6 @@ echo do10 Error Prevention
 ./cirTest -F ./tests.script/do10 &> ./output/do10
 diff ./output/do10 ./output/do10-ref
 
+echo do11 Advanced Print -fanout
+./cirTest -F ./tests.script/do11 &> ./output/do11
+diff ./output/do11 ./output/do11-ref

@@ -64,4 +64,5 @@ cirg 4784 -fanin 500
 cirg 4884 -fanin 500
 cirg 0 -fanout 500
 cirg 1 -fanout 500
+usage
 Quit -f

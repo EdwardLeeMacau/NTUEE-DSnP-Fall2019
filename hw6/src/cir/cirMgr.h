@@ -50,16 +50,16 @@ public:
 
 private:
 
-   void DepthFirstTraversal(const unsigned int, list<CirGate*> &) const;
-   void DepthFirstTraversal(CirGate* , list<CirGate*> &) const;
+   void DepthFirstTraversal(const unsigned int, vector<CirGate*> &) const;
+   void DepthFirstTraversal(CirGate* , vector<CirGate*> &) const;
 
    bool readHeader(const string&);
    bool loadInput(const unsigned int&);
-   bool loadOutput(const unsigned int&, const unsigned int&);
-   bool loadAIG(const unsigned int&, const unsigned int&, const unsigned int&);
+   bool loadOutput(const unsigned int&);
+   bool loadAIG(const unsigned int&);
    bool loadSymbol(const unsigned int&, const string&);
    bool loadComment(const string&);
-   bool connect(const unsigned int &, const unsigned int &);
+   // bool connect(const unsigned int &, const unsigned int &);
 
    vector<unsigned int> _pin;       // PinIn Number
    vector<unsigned int> _pout;      // PinOut Number
@@ -68,7 +68,6 @@ private:
    vector<unsigned int> _notused;   // Not in used Gates
    vector<CirGate*>     _gates;
 
-   fstream _file;                   // Store the .txt file
    stringstream _comment;           // Store the comment
 
    unsigned int _M;                 // Maximal Variable Index

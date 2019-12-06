@@ -131,12 +131,10 @@ CirGate::reportFanin(int level, int indent, bool invert)
       // Mark (this) CirGate
       (this)->mark();
    
-      // TODO: Call Fanins from low number to high number
+      // Call Fanins
       indent += INDENT;
-      for (auto it : _fanin)  
-      {
-         CirGate::gate(it)->reportFanin(level - 1, indent, (CirGate::isInv(it))? true : false);
-      }
+      for (vector<CirGate*>::iterator it = _fanin.begin(); it != _fanin.end(); ++it)  
+         CirGate::gate(*it)->reportFanin(level - 1, indent, (CirGate::isInv(*it))? true : false);
    }
 }
 
@@ -161,13 +159,10 @@ CirGate::reportFanout(int level, int indent, bool invert)
       // Mark (this) CirGate
       (this)->mark();
    
-      // Call Fanins
+      // Call Fanouts
       indent += INDENT;
-      for (auto it : _fanout)  
-      {
-         invert = (CirGate::isInv(it))? true : false;
-         CirGate::gate(it)->reportFanout(level - 1, indent, invert);
-      }
+      for (vector<CirGate*>::iterator it = _fanout.begin(); it != _fanout.end(); ++it)
+         CirGate::gate(*it)->reportFanout(level - 1, indent, (CirGate::isInv(*it))? true : false);
    }
 }
 

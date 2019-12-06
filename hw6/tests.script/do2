@@ -163,4 +163,5 @@ cirp
 cirp -pi
 cirp -po
 cirp -fl
+usage
 Quit -f

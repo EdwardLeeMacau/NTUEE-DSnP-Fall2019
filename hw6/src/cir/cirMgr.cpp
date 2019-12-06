@@ -198,15 +198,6 @@ CirMgr::readCircuit(const string& fileName)
    // Set LineNo
    lineNo = 1;
 
-   /*
-    * Parsing AIGER here with loop
-    * 
-   */
-   while (true)
-   {
-      break;
-   }
-
    // Get Header
    getline(file, tmp);
    readHeader(tmp);  
@@ -222,31 +213,29 @@ CirMgr::readCircuit(const string& fileName)
    for (int i = 0; i < _I; ++i)
    {
       file >> i1;
-      loadInput(i1 / 2);
+
+      loadInput(i1 / 2);   
       ++lineNo;
    }
 
    // Record Marker
    pos_o = file.tellg();
 
-   // Number ID of POs in range [_M + 1, _M + _O]
+   // Number ID of POs in range [_M + 1, _M + _O], and fanin is in range [0, _M]
    for (int o = 0; o < _O; ++o)
    {
       file >> i1;
-      _pout.push_back(_M + o + 1);
-      _gates[_M + o + 1] = new CirPOGate(_M + o + 1, lineNo);
-      ++lineNo;      
+
+      loadOutput(_M + o + 1); 
+      ++lineNo;
    }
-   
-   // Record Marker
-   // paig_tellg = file.tellg();
 
    // Number ID of AIGs
    for (int a = 0; a < _A; ++a)
    {
       file >> i1 >> i2 >> i3;
-      _aig.push_back(i1 / 2);
-      _gates[i1 / 2] = new CirAIGate(i1 / 2, lineNo);
+
+      loadAIG(i1 / 2); 
       ++lineNo;
    }
 
@@ -258,7 +247,16 @@ CirMgr::readCircuit(const string& fileName)
    while (true)
    {
       if (file.peek() == '\n') file.get();
-      if (file.peek() == 'c') break;
+      if (file.peek() == 'c') 
+      { 
+         getline(file, tmp);
+         while(file.good()) 
+         { 
+            getline(file, tmp); 
+            _comment << tmp << endl; 
+         }
+         break; 
+      }
       if (file.peek() == EOF) break;
 
       getline(file, tmp);
@@ -266,14 +264,25 @@ CirMgr::readCircuit(const string& fileName)
       if (sscanf(tmp.c_str(), "%c%u %s", &type, &i1, buf) == 3)
       {
          tmp2 = string(buf);
-         if (type == 'i')  loadSymbol(i1 + 1, tmp2);
-         if (type == 'o')  loadSymbol(_M + i1 + 1, tmp2);
+         if (type == 'i')
+         {
+            // Parsing Error
+            if (i1 > _A)   parseError(NUM_TOO_BIG);
+            if (i1 < 0)    parseError(NUM_TOO_SMALL);
+            
+            loadSymbol(i1 + 1, tmp2);
+         }
+         if (type == 'o')
+         {
+            // Parsing Error
+            if (i1 > _O)   parseError(NUM_TOO_BIG);
+            if (i1 < 0)    parseError(NUM_TOO_SMALL);
+            
+            loadSymbol(_M + i1 + 1, tmp2);
+         }
+         // else { parseError(ILLEGAL_SYMBOL_TYPE); }
       }
-      else
-      {
-         break;
-      }
-      
+      else { break; }
    }
 
    /*
@@ -375,6 +384,22 @@ CirMgr::readCircuit(const string& fileName)
    // Close fstream
    file.close();
 
+   /*
+    * Sorting _fanin and _fanout
+    * - AIG (multiple _fanout)
+    * - PIN (multiple _fanout)
+   */
+
+   // Sort PIN and AIG's _fanout list
+   for (unsigned int i = 0; i < _M; ++i )
+   {
+      if (getGate(i))
+      {
+         sort(getGate(i)->_fanout.begin(), getGate(i)->_fanout.end(),
+            [](CirGate* a, CirGate* b) { return CirGate::gate(a)->_gateId < CirGate::gate(b)->_gateId; });
+      }
+   }
+
    // Sorting the vector
    sort(_floating.begin(), _floating.end());
    sort(_notused.begin(), _notused.end());
@@ -415,7 +440,7 @@ CirMgr::printSummary() const
 void
 CirMgr::printNetlist() const
 {;
-   list<CirGate*> dfslist;
+   vector<CirGate*> dfslist;
    CirGate* tmp;
 
    // Raise Up Global Marker
@@ -432,7 +457,7 @@ CirMgr::printNetlist() const
       DepthFirstTraversal(*it, dfslist);
    
    // Print by the priority of dfslist
-   for (list<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
+   for (vector<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
    {
       cout << '[' << lineNo << "] " << setw(4) << left << (*it)->getTypeStr() << (*it)->_gateId;
 
@@ -504,40 +529,66 @@ CirMgr::printFloatGates() const
 void
 CirMgr::writeAag(ostream& outfile) const
 {
+   vector<CirGate*> dfslist;
+   size_t activeAIG = 0;
    CirGate* tmp;
+   
+   // Output + AIG + Input (With DFS order)
+   CirGate::raiseGlobalMarker();
+   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)  
+      DepthFirstTraversal(getGate(*it), dfslist);
+
+   // Count number of AIG.
+   for (vector<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
+      if ((*it)->_fanin.size() && (*it)->_fanout.size())
+         ++activeAIG;
 
    // Header
-   outfile << "aag " << _M << " " << _I << " " << _L << " " <<  _O << " " << _A << endl;
+   outfile << "aag " << _M << " " << _I << " " << _L << " " <<  _O << " " << activeAIG << endl;
    
-   // Input, Output, AIG
-   for (auto it : _pin)  outfile << 2 * it << endl;
-   for (auto it : _pout) 
+   // Input
+   for (vector<const unsigned int>::iterator it = _pin.begin(); it != _pin.end(); ++it)
+      outfile << 2 * (*it) << endl;
+   
+   // Output
+   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it) 
    {
-      tmp = getGate(it)->_fanin[0];
+      tmp = getGate(*it)->_fanin[0];
       outfile << ((CirGate::isInv(tmp))? (2 * CirGate::gate(tmp)->_gateId + 1): (2 * tmp->_gateId)) << endl;
    }
-   for (auto it : _aig)  
+
+   // AIG (Print the dfslist)
+   for (vector<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
    {
-      outfile << 2 * it;
-      for (auto it2 : getGate(it)->_fanin)
-         outfile << ' ' << ((CirGate::isInv(it2))? (2 * it2->_gateId + 1) : (2 * it2->_gateId));
-      outfile << endl;
+      // Check if it is an AIG
+      if ((*it)->_fanin.size() && (*it)->_fanout.size())
+      {
+         outfile << 2 * (*it)->_gateId;
+         for (vector<CirGate*>::iterator it2 = (*it)->_fanin.begin(); it2 != (*it)->_fanin.end(); ++it2)
+            outfile << ' ' << ((CirGate::isInv(*it2))? (2 * CirGate::gate(*it2)->_gateId + 1) : (2 * (*it2)->_gateId));
+         outfile << endl;
+      }
    }
 
    // Symbol
    for (size_t i = 0; i < _pin.size(); ++i)
    {
       tmp = getGate(_pin[i]);
-      if (tmp->hasSymbol()) outfile << 'i' << i << tmp->_symbol << endl;
+      if (tmp->hasSymbol()) outfile << 'i' << i << ' ' << tmp->_symbol << endl;
    }
 
    for (size_t o = 0; o < _pout.size(); ++o)
    {
       tmp = getGate(_pout[o]);
-      if (tmp->hasSymbol()) outfile << 'o' << o << tmp->_symbol << endl;
+      if (tmp->hasSymbol()) outfile << 'o' << o << ' ' << tmp->_symbol << endl;
    }
 
-   // Comment
+   // Comment (Just for fun!)
+   // if (_comment.good()) 
+   //    outfile << 'c' << endl << _comment.str();
+
+   // Comment (For vimdiff)
+   outfile << 'c' << endl << "AAG output by Chung-Yang (Ric) Huang" << endl;
 }
 
 void
@@ -566,7 +617,7 @@ CirMgr::reset()
       The gateID List
 */
 void
-CirMgr::DepthFirstTraversal(const unsigned int gateID, list<CirGate*> &dfslist) const
+CirMgr::DepthFirstTraversal(const unsigned int gateID, vector<CirGate*> &dfslist) const
 {
    DepthFirstTraversal(getGate(gateID), dfslist);
 }
@@ -584,7 +635,7 @@ CirMgr::DepthFirstTraversal(const unsigned int gateID, list<CirGate*> &dfslist) 
       The gateID List
 */
 void
-CirMgr::DepthFirstTraversal(CirGate* c, list<CirGate*> &dfslist) const
+CirMgr::DepthFirstTraversal(CirGate* c, vector<CirGate*> &dfslist) const
 {
    // If have already seen the element, ignore it
    if (c->isMarked() || c->isFloating()) return;
@@ -602,7 +653,11 @@ CirMgr::DepthFirstTraversal(CirGate* c, list<CirGate*> &dfslist) const
 bool
 CirMgr::readHeader(const string &s)
 {
-   if (sscanf(s.c_str(), "aag %d %d %d %d %d", &_M, &_I, &_L, &_O, &_A) == 5) { return true; }
+   if (sscanf(s.c_str(), "aag %d %d %d %d %d", &_M, &_I, &_L, &_O, &_A) == 5) 
+   { 
+      if (_M < _I + _A) parseError(NUM_TOO_SMALL);
+      return true; 
+   }
 
    return false;
 }
@@ -618,8 +673,15 @@ CirMgr::readHeader(const string &s)
 bool
 CirMgr::loadInput(const unsigned int &id)
 {
-   _pin.push_back(id);
-   _gates[id] = new CirPIGate(id, lineNo);
+   // Parsing Error
+   if (id > _M)         parseError(MAX_LIT_ID);
+   else if (id == 0)    parseError(REDEF_CONST);
+   else if (_gates[id]) parseError(REDEF_SYMBOLIC_NAME);
+   else
+   {
+      _pin.push_back(id);
+      _gates[id] = new CirPIGate(id, lineNo);
+   }
 
    return true;
 }
@@ -635,10 +697,17 @@ CirMgr::loadInput(const unsigned int &id)
       True if successfully load a POut
 */
 bool 
-CirMgr::loadOutput(const unsigned int &id, const unsigned int &fanin)
+CirMgr::loadOutput(const unsigned int &id)
 {
-   _pout.push_back(id);
-   _gates[id] = new CirPOGate(id, lineNo);
+   // Parsing Error
+   if (id > _M + _O)    parseError(NUM_TOO_BIG);
+   else if (id < _M)    parseError(NUM_TOO_SMALL);
+   else if (_gates[id]) parseError(REDEF_SYMBOLIC_NAME);
+   else
+   {
+      _pout.push_back(id);
+      _gates[id] = new CirPOGate(id, lineNo);
+   }
    
    return true;
 }
@@ -652,40 +721,46 @@ CirMgr::loadOutput(const unsigned int &id, const unsigned int &fanin)
       The ID Number of the fanin (input)
 */
 bool
-CirMgr::loadAIG(const unsigned int &id, const unsigned int &i1, const unsigned int &i2)
+CirMgr::loadAIG(const unsigned int &id)
 {
-   _aig.push_back(id);
-   _gates[id] = new CirAIGate(id, lineNo);
+   // Parsing Error
+   if (id > _M)         parseError(NUM_TOO_BIG);
+   else if (id == 0)    parseError(REDEF_CONST);
+   // else if (id == 1)    parseError(REDEF_CONST);
+   // else if (id % 2)     parseError(CANNOT_INVERTED);
+   else if (_gates[id]) parseError(REDEF_SYMBOLIC_NAME);
+   else
+   {
+      _aig.push_back(id);
+      _gates[id] = new CirAIGate(id, lineNo);
+   }
 
    return true;
 }
 
+/*
+   Load the symbol
+
+   @param id
+      The ID Number of the gate
+   @param s
+      The Symbol
+*/
 bool 
 CirMgr::loadSymbol(const unsigned int &id, const string &s)
 {
-   _gates[id]->_symbol = s;
+   // Parsing Error
+   if (_gates[id]->hasSymbol())   parseError(REDEF_SYMBOLIC_NAME);
+   else
+   {
+      _gates[id]->_symbol = s;   
+   }
+   
    return true;
 }
 
 bool
 CirMgr::loadComment(const string &s)
 {
-   return true;
-}
-
-/*
-   Connect 2 gates.
-
-   @param ascender, descender
-      Fanin / Fanout
-   @return bool
-      True if successfully connect the Circuit
-*/
-bool
-CirMgr::connect(const unsigned int &ascender, const unsigned int &descender)
-{
-   // getGate(ascender / 2)->addFanout(getGate(descender / 2), ascender % 2);
-   // getGate(descender / 2)->addFanin(getGate(ascender / 2), ascender % 2);
-
    return true;
 }

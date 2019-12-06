@@ -5,4 +5,5 @@ CirGate 17
 CirGate 7
 CirGate 12
 CirRead ./tests.fraig/test1.aag -Replace
+usage
 Quit -f

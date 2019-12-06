@@ -64,4 +64,5 @@ cirr ./tests.fraig/test1.aag -r
 cirp -n
 cirr ./tests.fraig/test2.aag -r
 cirp -n
+usage
 Quit -f

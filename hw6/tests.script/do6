@@ -1306,4 +1306,5 @@ cirg 20 -fanin 2
 cirg 20 -fanin 3
 cirg 20 -fanin 4
 cirg 20 -fanin 5
+usage
 Quit -f

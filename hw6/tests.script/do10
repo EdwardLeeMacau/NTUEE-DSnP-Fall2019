@@ -38,4 +38,5 @@ cirr ./tests.fraig/e37.aag
 cirr ./tests.fraig/e38.aag
 cirr ./tests.fraig/e39.aag
 cirr ./tests.fraig/e40.aag
+usage
 Quit -f

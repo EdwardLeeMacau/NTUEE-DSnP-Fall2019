@@ -64,3 +64,5 @@ cirr test1.aag -r
 cirw -o w11.aag
 cirr test2.aag -r
 cirw -o w12.aag
+usage
+Quit -f
