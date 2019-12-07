@@ -1,7 +1,7 @@
-echo make clean
-make clean
+# echo make clean
+# make clean
 
-echo make
+# echo make
 make
 
 echo do1 Write File

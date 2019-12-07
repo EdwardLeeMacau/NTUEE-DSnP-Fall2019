@@ -55,8 +55,9 @@ private:
 
    bool readHeader(const string&);
    bool loadInput(const unsigned int&);
-   bool loadOutput(const unsigned int&);
+   bool loadOutput(const unsigned int&, const unsigned int&);
    bool loadAIG(const unsigned int&);
+   bool loadLatch(const unsigned int&, const unsigned int&);
    bool loadSymbol(const unsigned int&, const string&);
    bool loadComment(const string&);
    // bool connect(const unsigned int &, const unsigned int &);
@@ -64,6 +65,7 @@ private:
    vector<unsigned int> _pin;       // PinIn Number
    vector<unsigned int> _pout;      // PinOut Number
    vector<unsigned int> _aig;       // AIGs Number
+   vector<unsigned int> _latch;     // Latch Number
    vector<unsigned int> _floating;  // Floating Gates
    vector<unsigned int> _notused;   // Not in used Gates
    vector<CirGate*>     _gates;
