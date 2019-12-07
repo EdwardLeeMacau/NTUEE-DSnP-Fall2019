@@ -407,34 +407,34 @@ CirMgr::readCircuit(const string& fileName)
    }
 
    // Find out the defined but not in used gates
-   for (vector<const unsigned int>::iterator it = _aig.begin(); it != _aig.end(); ++it)
+   for (size_t i = 0; i < _aig.size(); ++i)
    {
-      if (!getGate(*it)->_fanout.size())
-         _notused.push_back(*it);
+      if (!getGate(_aig[i])->_fanout.size())
+         _notused.push_back(_aig[i]);
    }
 
-   for (vector<const unsigned int>::iterator it = _pin.begin(); it != _pin.end(); ++it)
+   for (size_t i = 0; i < _pin.size(); ++i)
    {
-      if (!getGate(*it)->_fanout.size())
-         _notused.push_back(*it);
+      if (!getGate(_pin[i])->_fanout.size())
+         _notused.push_back(_pin[i]);
    }
 
    // Find out the undefined gates (floating)
-   for (vector<const unsigned int>::iterator it = _aig.begin(); it != _aig.end(); ++it)
+   for (size_t i = 0; i < _aig.size(); ++i)
    {
-      for (vector<CirGate*>::iterator it2 = getGate(*it)->_fanin.begin(); it2 != getGate(*it)->_fanin.end(); ++it2)
+      for (vector<CirGate*>::iterator it2 = getGate(_aig[i])->_fanin.begin(); it2 != getGate(_aig[i])->_fanin.end(); ++it2)
       {
          if (CirGate::gate(*it2)->isFloating())
-            _floating.push_back(*it);
+            _floating.push_back(_aig[i]);
       }
    }
 
-   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)
+   for (size_t i = 0; i < _pout.size(); ++i)
    {
-      for (vector<CirGate*>::iterator it2 = getGate(*it)->_fanin.begin(); it2 != getGate(*it)->_fanin.end(); ++it2)
+      for (vector<CirGate*>::iterator it2 = getGate(_pout[i])->_fanin.begin(); it2 != getGate(_pout[i])->_fanin.end(); ++it2)
       {
          if (CirGate::gate(*it2)->isFloating())
-            _floating.push_back(*it);
+            _floating.push_back(_pout[i]);
       }
    }
 
@@ -511,8 +511,8 @@ CirMgr::printNetlist() const
    cout << endl;
 
    // Depth First Traversal from all POut
-   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)
-      DepthFirstTraversal(*it, dfslist);
+   for (size_t i = 0; i < _pout.size(); ++i)
+      DepthFirstTraversal(_pout[i], dfslist);
    
    // Print by the priority of dfslist
    for (vector<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
@@ -550,8 +550,8 @@ CirMgr::printPIs() const
 {
    cout << "PIs of the circuit:";
 
-   for (vector<const unsigned int>::iterator it = _pin.begin(); it != _pin.end(); ++it)
-      cout << ' ' << (*it);
+   for (size_t i = 0; i < _pin.size(); ++i)
+      cout << ' ' << (_pin[i]);
    
    cout << endl;
 }
@@ -561,8 +561,8 @@ CirMgr::printPOs() const
 {
    cout << "POs of the circuit:";
 
-   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)
-      cout << ' ' << (*it);
+   for (size_t i = 0; i < _pout.size(); ++i)
+      cout << ' ' << (_pout[i]);
    
    cout << endl;
 }
@@ -581,8 +581,8 @@ CirMgr::printFloatGates() const
    {
       cout << "Gates with floating fanin(s):";
 
-      for (vector<const unsigned int>::iterator it = _floating.begin(); it != _floating.end(); ++it)
-         cout << ' ' << (*it);
+      for (size_t i = 0; i < _floating.size(); ++i)
+         cout << ' ' << (_floating[i]);
       
       cout << endl;
    }
@@ -591,8 +591,8 @@ CirMgr::printFloatGates() const
    {
       cout << "Gates defined but not used  :";
       
-      for (vector<const unsigned int>::iterator it = _notused.begin(); it != _notused.end(); ++it)
-         cout << ' ' << (*it);
+      for (size_t i = 0; i < _notused.size(); ++i)
+         cout << ' ' << (_notused[i]);
       
       cout << endl;
    }
@@ -607,8 +607,8 @@ CirMgr::writeAag(ostream& outfile) const
    
    // Output + AIG + Input (With DFS order)
    CirGate::raiseGlobalMarker();
-   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it)  
-      DepthFirstTraversal(getGate(*it), dfslist);
+   for (size_t i = 0; i < _pout.size(); ++i)
+      DepthFirstTraversal(getGate(_pout[i]), dfslist);
 
    // Count number of AIG.
    for (vector<CirGate*>::iterator it = dfslist.begin(); it != dfslist.end(); ++it)
@@ -619,13 +619,13 @@ CirMgr::writeAag(ostream& outfile) const
    outfile << "aag " << _M << " " << _I << " " << _L << " " <<  _O << " " << activeAIG << endl;
    
    // Input
-   for (vector<const unsigned int>::iterator it = _pin.begin(); it != _pin.end(); ++it)
-      outfile << 2 * (*it) << endl;
+   for (size_t i = 0; i < _pin.size(); ++i)
+      outfile << 2 * _pin[i] << endl;
    
    // Output
-   for (vector<const unsigned int>::iterator it = _pout.begin(); it != _pout.end(); ++it) 
+   for (size_t i = 0; i < _pout.size(); ++i)
    {
-      tmp = getGate(*it)->_fanin[0];
+      tmp = getGate(_pout[i])->_fanin[0];
       outfile << ((CirGate::isInv(tmp))? (2 * CirGate::gate(tmp)->_gateId + 1): (2 * tmp->_gateId)) << endl;
    }
 
