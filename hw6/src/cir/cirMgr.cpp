@@ -145,6 +145,12 @@ parseError(CirParseError err)
    return false;
 }
 
+void
+popError(CirParseError err)
+{
+   parseError(err); cirMgr->reset(); cirMgr = NULL;
+}
+
 /**************************************************************/
 /*   class CirMgr member functions for circuit construction   */
 /**************************************************************/
@@ -222,14 +228,14 @@ CirMgr::readCircuit(const string& fileName)
    for (int i = 0; i < _I; ++i)
    {
       getline(file, tmp);
+      state = sscanf(tmp.c_str(), "%d", &i1);
 
       // Parsing
-      if (sscanf(tmp.c_str(), "%d", &i1) == 1 && loadInput(i1)) {}
-      else 
-      { 
-         parseError(MISSING_NUM); reset(); cirMgr = NULL; return false;
-      }
-            
+      if (state < 1)
+         { errMsg = "PI literal ID"; parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state == 1 && loadInput(i1)) 
+         { /* Do nothing */ }
+         
       ++lineNo;
    }
 
@@ -237,13 +243,13 @@ CirMgr::readCircuit(const string& fileName)
    for (int l = 0; l < _L; ++l)
    {
       getline(file, tmp);
-      
+      state = sscanf(tmp.c_str(), "%d %d", &i1, &i2);
+
       // Parsing
-      if (sscanf(tmp.c_str(), "%d %d", &i1, &i2) == 2 && loadLatch(i1, i2)) {}
-      else 
-      { 
-         parseError(MISSING_NUM); reset(); cirMgr = NULL; return false;
-      }
+      if (state < 2)
+         { errMsg = "Latch literal ID"; parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state == 2 && loadLatch(i1, i2)) 
+         { /* Do nothing */ }
       
       ++lineNo;
    }
@@ -255,14 +261,16 @@ CirMgr::readCircuit(const string& fileName)
    for (int o = 0; o < _O; ++o)
    {
       getline(file, tmp);
+      state = sscanf(tmp.c_str(), "%d", &i1);
 
       // Parsing
-      if (sscanf(tmp.c_str(), "%d", &i1) == 1 && loadOutput(_M + o + 1, i1)) {}
-      else 
-      { 
-         parseError(MISSING_NUM); reset(); cirMgr = NULL; return false;
-      }
-   
+      if (state == -1)
+         { errMsg = "PO literal ID"; parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state < 1)
+         { parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state == 1 && loadOutput(_M + o + 1, i1)) 
+         { /* Do nothing */ }
+
       ++lineNo;
    }
 
@@ -270,61 +278,68 @@ CirMgr::readCircuit(const string& fileName)
    for (int a = 0; a < _A; ++a)
    {
       getline(file, tmp);
+      state = sscanf(tmp.c_str(), "%d %d %d", &i1, &i2, &i3);
 
       // Parse Error
-      if (sscanf(tmp.c_str(), "%d %d %d", &i1, &i2, &i3) == 3 && loadAIG(i1)) {}
-      else 
-      { 
-         parseError(MISSING_NUM); reset(); cirMgr = NULL; return false;
-      }
-
+      if (state == 0)
+         { errMsg = "AIG literal ID"; parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state < 3)
+         { errMsg = "AIG literal ID"; parseError(MISSING_NUM); reset(); cirMgr = NULL; return false; }
+      else if (state == 3 && loadAIG(i1)) 
+         { /* Do nothing */ }
+      
       ++lineNo;
    }
 
    /*
-    * Load Symbol
-    * 
-    * If getline() and sscanf() successfully
+    * Load Symbol and Comment, if they are at the file
    */
    while (true)
    {
-      if (file.peek() == '\n') file.get();
-      if (file.peek() == 'c') 
+      if (file.peek() == 'c')          // Read Comment
       { 
          getline(file, tmp);
+         if (tmp != "c")
+            { parseError(ILLEGAL_IDENTIFIER); }
+
          while(file.good()) 
          { 
             getline(file, tmp); 
             _comment << tmp << endl; 
          }
+
          break; 
       }
-      if (file.peek() == EOF) break;
-
+      if (file.peek() == EOF)          // No Symbol and Comment
+         { break; }
+         
       getline(file, tmp);
+      state = sscanf(tmp.c_str(), "%c%u %s", &type, &i1, buf);
       
-      if (sscanf(tmp.c_str(), "%c%u %s", &type, &i1, buf) == 3)
+      if (state < 3)
+         { parseError(MISSING_NUM); }
+      else if (state == 3)
       {
          tmp2 = string(buf);
 
          if (type == 'i')
          {
-            // Parsing Error
-            if (i1 > _A)   parseError(NUM_TOO_BIG);
-            if (i1 < 0)    parseError(NUM_TOO_SMALL);
+            if (i1 > _A) 
+               { parseError(NUM_TOO_BIG); }
+            if (i1 < 0)    
+               { parseError(NUM_TOO_SMALL); }
          }
-         if (type == 'o')
+         else if (type == 'o')
          {
             // Parsing Error
-            if (i1 > _O)   parseError(NUM_TOO_BIG);
-            if (i1 < 0)    parseError(NUM_TOO_SMALL);
+            if (i1 > _O)
+               { parseError(NUM_TOO_BIG); }
+            if (i1 < 0)    
+               { parseError(NUM_TOO_SMALL); }
             
             i1 += _M;
          }
-         else 
-         { 
-            // parseError(ILLEGAL_SYMBOL_TYPE); 
-         }
+         else { parseError(ILLEGAL_SYMBOL_TYPE); reset(); cirMgr = NULL; return false; }
          
          // Load Symbol
          loadSymbol(i1 + 1, tmp2);
@@ -763,7 +778,7 @@ CirMgr::loadInput(const unsigned int &id)
    if (id > 2 * _M)         { errInt = id; parseError(MAX_LIT_ID); }
    else if (id == 0)        { errInt = id; parseError(REDEF_CONST); }
    else if (id == 1)        { errInt = id; parseError(REDEF_CONST); }
-   else if (_gates[id / 2]) { errInt = id; errMsg = ""; parseError(REDEF_SYMBOLIC_NAME); }
+   else if (_gates[id / 2]) { errInt = id; errGate = _gates[id / 2]; parseError(REDEF_GATE); }
    else
    {
       _pin.push_back(id / 2);
@@ -817,7 +832,7 @@ CirMgr::loadAIG(const unsigned int &id)
    else if (id == 0)        { parseError(REDEF_CONST); }
    else if (id == 1)        { parseError(REDEF_CONST); }
    else if (id % 2)         { parseError(CANNOT_INVERTED); }
-   else if (_gates[id / 2]) { parseError(REDEF_SYMBOLIC_NAME); }
+   else if (_gates[id / 2]) { errInt = id; errGate = _gates[id / 2]; parseError(REDEF_GATE); }
    else
    {
       _aig.push_back(id / 2);
