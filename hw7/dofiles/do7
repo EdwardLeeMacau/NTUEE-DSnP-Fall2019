@@ -1,5 +1,5 @@
-taski 1000000
-taskn -r 1000000
+taski 100000
+taskn -r 100000
 taskq -hash
 taskq -heap
 taska 100

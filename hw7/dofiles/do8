@@ -1,0 +1,11 @@
+taski 10
+taskr -n zibrzs
+taskn -r 19
+taska 1000
+taskq -hash
+taskq -heap
+taskr -r 20
+taskq -hash
+taskq -heap
+usage
+quit -f

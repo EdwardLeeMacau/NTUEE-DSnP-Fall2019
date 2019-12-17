@@ -48,58 +48,277 @@ public:
       friend class HashSet<Data>;
 
    public:
-      const Data& operator * () const { return Data(); }
-      iterator& operator ++ () { return (*this); }
-      bool operator != (const iterator& i) const { return true; }
+
+      iterator(vector<Data>* p, size_t b, size_t i, size_t arrSize) 
+         : _buckets(p), _numBuckets(arrSize), _b(b), _i(i) {}
+      iterator(const iterator& i) 
+         : _buckets(i._buckets), _numBuckets(i._numBuckets), _b(i._b), _i(i._i) {}
+
+      const Data& operator * () const 
+      { 
+         return _buckets[_b][_i]; 
+      }
+
+      iterator& operator ++ () 
+      { 
+         // Check whether the iterator is at the end.
+         if (_b == _numBuckets) { return (*this); }
+
+         // If not at the end.
+         ++_i;
+         
+         // If the members in _buckets[_b] were iterated.
+         while (_i == _buckets[_b].size()) 
+         { 
+            ++_b; _i = 0;
+            if (_b == _numBuckets) { break; } 
+         }
+                  
+         return (*this); 
+      }
+      
+      iterator operator ++ (int i) 
+      { 
+         iterator it(_buckets, _b, _i); 
+         operator++(); 
+         
+         return it; 
+      }
+      
+      iterator& operator -- () 
+      { 
+         // If the members in _buckets[_b] were iterated.
+         while (_b && !_i) { --_b; _i = _buckets[_b].size(); }
+
+         // Check whether the iterator is at the beginning.
+         if (_i) { --_i; }
+                  
+         return (*this); 
+      }
+      
+      iterator operator -- (int i) 
+      { 
+         iterator it(_buckets, _b, _i); 
+         operator--(); 
+         
+         return it; 
+      }
+      
+      iterator& operator = (const iterator& i) 
+      { 
+         _buckets = i._buckets;
+         _b = i._b; 
+         _i = i._i; 
+
+         return *(this); 
+      }
+      
+      bool operator != (const iterator& i) const 
+      { 
+         return (i._buckets == _buckets && i._b == _b && i._i == _i)? false : true; 
+      }
+      
+      bool operator == (const iterator& i) const 
+      { 
+         return (i._buckets == _buckets && i._b == _b && i._i == _i)? true : false; 
+      }
+
    private:
+
+      vector<Data>*  _buckets;   // HashSet Array
+      size_t _numBuckets;        // Size of HashSet Array
+      size_t _b;                 // Indice of HashSet::_buckets (HashSet::_buckets[_b])
+      size_t _i;                 // Indice of HashSet::_buckets[_b] (HashSet::_buckets[_b][_i])
    };
 
-   void init(size_t b) { _numBuckets = b; _buckets = new vector<Data>[b]; }
-   void reset() {
+   void init(size_t b) 
+   { 
+      _numBuckets = b; 
+      if (_buckets) { delete [] _buckets; }
+      _buckets = new vector<Data>[b]; 
+   }
+   
+   void reset() 
+   {
       _numBuckets = 0;
       if (_buckets) { delete [] _buckets; _buckets = 0; }
    }
-   void clear() {
-      for (size_t i = 0; i < _numBuckets; ++i) _buckets[i].clear();
+   
+   void clear() 
+   {
+      for (size_t i = 0; i < _numBuckets; ++i) 
+         _buckets[i].clear();
    }
-   size_t numBuckets() const { return _numBuckets; }
 
-   vector<Data>& operator [] (size_t i) { return _buckets[i]; }
-   const vector<Data>& operator [](size_t i) const { return _buckets[i]; }
+   size_t numBuckets() const 
+   { 
+      return _numBuckets; 
+   }
+
+   vector<Data>& operator [] (size_t i) 
+   { 
+      return _buckets[i]; 
+   }
+   
+   const vector<Data>& operator [](size_t i) const 
+   { 
+      return _buckets[i]; 
+   }
 
    // TODO: implement these functions
-   //
+   
    // Point to the first valid data
-   iterator begin() const { return iterator(); }
+   iterator begin() const 
+   { 
+      size_t b = 0;
+
+      for (; b < _numBuckets; ++b) { if (_buckets[b].size()) { break; } }
+      
+      return iterator(_buckets, b, 0, _numBuckets); 
+   }
+   
    // Pass the end
-   iterator end() const { return iterator(); }
+   iterator end() const 
+   { 
+      return iterator(_buckets, _numBuckets, 0, _numBuckets); 
+   }
+   
    // return true if no valid data
-   bool empty() const { return true; }
+   bool empty() const 
+   { 
+      for (size_t b = 0; b < _numBuckets; ++b) { if (_buckets[b].size()) { return false; } }
+      return true; 
+   }
+   
    // number of valid data
-   size_t size() const { size_t s = 0; return s; }
+   size_t size() const 
+   { 
+      size_t s = 0; 
 
-   // check if d is in the hash...
-   // if yes, return true;
-   // else return false;
-   bool check(const Data& d) const { return false; }
+      for (size_t b = 0; b < _numBuckets; ++b) { s += _buckets[b].size(); }
+   
+      return s; 
+   }
 
-   // query if d is in the hash...
-   // if yes, replace d with the data in the hash and return true;
-   // else return false;
-   bool query(Data& d) const { return false; }
+   /*
+      check if d is in the hash...
+      
+      if yes, return true;
+      else return false;
+   
+      @param d
+         the element to check
+      @return bool
+         True
+   */
+   bool check(const Data& d) const 
+   { 
+      size_t b = bucketNum(d);
+      
+      for (size_t i = 0; i < _buckets[b].size(); ++i) 
+      { 
+         if (_buckets[b][i] == d) { return true; } 
+      }
 
-   // update the entry in hash that is equal to d (i.e. == return true)
-   // if found, update that entry with d and return true;
-   // else insert d into hash as a new entry and return false;
-   bool update(const Data& d) { return false; }
+      return false; 
+   }
 
-   // return true if inserted successfully (i.e. d is not in the hash)
-   // return false is d is already in the hash ==> will not insert
-   bool insert(const Data& d) { return true; }
+   /*
+      query if d is in the hash...
+   
+      if yes, replace d with the data in the hash and return true;
+      else return false;
+   
+      @param d
+         the element to replace
+      @return bool
+         true 
+   */
+   bool query(Data& d) const 
+   { 
+      size_t b = bucketNum(d);
+      
+      for (size_t i = 0; i < _buckets[b].size(); ++i)
+      {
+         if (_buckets[b][i] == d) 
+            { d = _buckets[b][i]; return true; }
+      }
 
-   // return true if removed successfully (i.e. d is in the hash)
-   // return fasle otherwise (i.e. nothing is removed)
-   bool remove(const Data& d) { return false; }
+      return false; 
+   }
+
+   /*
+      update the entry in hash that is equal to d (i.e. == return true)
+      
+      if found, update that entry with d and return true;
+      else insert d into hash as a new entry and return false;
+
+      @param d
+         the element to update
+      @return bool
+         true if d in hash
+   */
+   bool update(const Data& d) 
+   { 
+      size_t b = bucketNum(d);
+      
+      for (size_t i = 0; i < _buckets[b].size(); ++i)
+      {
+         if (_buckets[b][i] == d) 
+            { _buckets[b][i] = d; return true; }
+      }
+      
+      // If not find the element in hash set
+      _buckets[b].push_back(d);
+      return false; 
+   }
+
+   /*
+      return true if inserted successfully (i.e. d is not in the hash)
+      return false is d is already in the hash ==> will not insert
+   
+      @param d
+         the element to insert
+      @return bool
+         true if inserted successfully, 
+   */
+   bool insert(const Data& d) 
+   { 
+      // If already in Hashset
+      if (check(d)) { return false; }
+
+      // If not in hash set
+      _buckets[bucketNum(d)].push_back(d);
+      return true; 
+   }
+
+   /*
+      return true if removed successfully (i.e. d is in the hash)
+      return fasle otherwise (i.e. nothing is removed)
+   
+      @param d
+         the element to remove
+      @return bool
+         true
+   */
+   bool remove(const Data& d) 
+   { 
+      size_t b = bucketNum(d);
+      
+      for (size_t i = 0; i < _buckets[b].size(); ++i)
+      {
+         if (_buckets[b][i] == d) 
+         { 
+            // Replace with the the last element
+            _buckets[b][i] = _buckets[b][_buckets[b].size() - 1];
+            _buckets[b].pop_back();
+            return true; 
+         }
+      }
+      
+      // If not find the element in hash set
+      return false; 
+   }
 
 private:
    // Do not add any extra data member

@@ -11,3 +11,5 @@ taska 1234 -r 4
 taskq -heap
 taska 4321 -r 3
 taskq -min
+Quit -f
+

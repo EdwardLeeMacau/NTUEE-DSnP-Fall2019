@@ -1,0 +1,33 @@
+taski 100
+taskn -r 150
+taskq -heap
+taskq -hash
+taskr -r 50
+taskq -heap
+taskq -hash
+taskn -r 70
+taskq -heap
+taskq -hash
+taskr -r 80
+taskq -heap
+taskq -hash
+taski 200
+taskn -r 200
+taskq -heap
+taskq -hash
+taskr -r 50
+taskq -heap
+taskq -hash
+taskq -min
+taska 500 -r 500
+taskq -heap
+taskq -hash
+taskq -min
+taskn -r 100
+taskq -heap
+taskq -hash
+taskr -r 300
+taskq -heap
+taskq -hash
+quit -f
+
