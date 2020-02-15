@@ -28,6 +28,6 @@ echo do6
 ./taskMgr -F ./dofiles/do6 &> ./output/do6 
 diff ./output/do6 ./output/do6-ref
 
-# echo do7
-# ./taskMgr -F ./dofiles/do7 &> ./output/do7
-# diff ./output/do7 ./output/do7-ref
+echo do7
+./taskMgr -F ./dofiles/do7 &> ./output/do7
+diff ./output/do7 ./output/do7-ref
