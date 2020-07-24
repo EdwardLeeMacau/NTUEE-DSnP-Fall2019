@@ -13,51 +13,88 @@
 
 using namespace std;
 
+/****************************************************************************
+ * ERROR MESSAGE
+****************************************************************************/
+
 /*
-    !Called when the command needs some argument(s) but not exists
+    !Print if the command needs argument(s) but not exists
 */
-void missingArgumentError(){
+void 
+missingArgumentError()
+{
     cout << "Error: Missing argument!!" << endl;
 }
 
 /*
-    !Called when the argument is invaild
+    !Print if the argument is invaild for that command
 
     @param argument
 */
-void illegalArgumentError(const string& argument){
+void 
+illegalArgumentError(const string& argument)
+{
     cout << "Error: Illegal argument \"" << argument << "\"!!" << endl;
 }
 
 /*
-    !Called when the number of arguments is over than the command specified.
+    !Print if the number of arguments is over than the command specified.
 
     @param argument
 */
-void ExtraArgumentError(const string& argument){
+void 
+ExtraArgumentError(const string& argument)
+{
     cout << "Error: Extra argument \"" << argument << "\"!!" << endl;
 }
 
-/*
-    @param str 
+/****************************************************************************
+ * UTILS FUNCTION
+****************************************************************************/
 
-    @return true if the string is representing a number.
+/*
+    @return bool true if the string is representing a number.
 */
-bool is_number(string& str){
+bool 
+is_number(string& str)
+{
     return !str.empty() && find_if(str.begin(), str.end(), [](char c) { return !isdigit(c); }) == str.end();
+}
+
+void 
+ltrim(string &s) 
+{
+    s.erase(s.begin(), find_if(s.begin(), s.end(), [](int ch) {
+        return !isspace(ch);
+    }));
+}
+
+void 
+rtrim(string &s) 
+{
+    s.erase(find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !isspace(ch);
+    }).base(), s.end());
+}
+
+void 
+trim(string &s) 
+{
+    ltrim(s); rtrim(s);
 }
 
 /*
     !Separate the input string as multiple part: <Command> <Argument>
 
-    @str The string user inputed
+    @param str The string user inputed
 
-    @container
+    @param container
 
-    @delim 
+    @param delim 
 */
-template <class Container>
-void parseCmd(string& str, Container& container, const string& delim = " "){
+void 
+parseCmd(string& str, vector<string>& container, const string& delim = " ")
+{
     unsigned long lcursor = 0;
     unsigned long rcursor = 0;
     
@@ -73,15 +110,17 @@ void parseCmd(string& str, Container& container, const string& delim = " "){
 /*
     !Separate the input string as two part: <Command> <Argument>
 
-    @str The string user inputed
+    @param str The string user inputed
 
-    @argument The variable to save the argument in string format
+    @param argument The variable to save the argument in string format
 
-    @delim 
+    @param delim 
 
     @return cmd
 */
-string parseCmd(string& str, string& argument, const string& delim = " "){
+string 
+parseCmd(string& str, string& argument, const string& delim = " ")
+{
     string cmd = str.substr(0, str.find(delim));
     argument = str.substr(cmd.size(), string::npos);
 
@@ -94,19 +133,22 @@ string parseCmd(string& str, string& argument, const string& delim = " "){
     return cmd;
 }
 
-int main()
+int 
+main()
 {
     Json json;
     vector<string> args;
+    string jsonFile;
     string buffer;
     string command;
     string key;
 
-    // Read in the csv file. Do NOT change this part of code.
-    string jsonFile;
+    // Do NOT change this part of code.
     cout << "Please enter the file name: ";
-    cin >> jsonFile;
-    
+
+    // Read filename
+    getline(cin, jsonFile); trim(jsonFile);
+
     if (json.read(jsonFile))
         cout << "File \"" << jsonFile << "\" was read in successfully." << endl;
     else {
@@ -132,8 +174,9 @@ int main()
 
         cout << "Enter command: ";
 
-        // Get the command and arguments      
-        while (command.empty()){
+        // TODO: Optimize this (ignore input ' ')
+        // Get the command and arguments
+        while (command.empty()) {
             getline(cin, command);
         }
         command = parseCmd(command, buffer);
@@ -193,29 +236,23 @@ int main()
         
         else if (command == "ADD") {
             // If argument (key or value) is empty
-            parseCmd<vector<string>>(buffer, args);
+            parseCmd(buffer, args);
             
             // The size of arguments should equal to 2
-            if (args.size() < 2) {
-                missingArgumentError();
-                continue;
-            } else if (args.size() > 2){
-                ExtraArgumentError(args[2]);
-                continue;
-            }
+            if (args.size() < 2) 
+                { missingArgumentError(); continue; } 
+            else if (args.size() > 2)
+                { ExtraArgumentError(args[2]); continue; }
 
             // If value is illegal (not a number)
-            if (!is_number(args[1])) {
-                illegalArgumentError(args[1]);
-                continue;
-            }
+            if (!is_number(args[1])) 
+                { illegalArgumentError(args[1]); continue; }
 
             // Add element if key doesn't repeat.
-            if (json.isExist(args[0])){
-                json.KeyExistError(args[0]);
-            } else {
-                json.add(args[0], stoi(args[1]));
-            }
+            if (json.isExist(args[0]))
+                { json.KeyExistError(args[0]); } 
+            else 
+                { json.add(args[0], stoi(args[1])); }
         } 
         
         else if (command == "EXIT") {

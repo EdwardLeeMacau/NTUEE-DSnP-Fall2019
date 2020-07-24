@@ -33,16 +33,16 @@ class Json
 {
 public:
     // TODO: define constructor & member functions on your own
-    bool read(const string&);
-    bool add(string, int);
-    bool print();
-    bool isEmpty();
-    bool isExist(string&);
-    int size();
-    long sum();
     JsonElem maxElement();
     JsonElem minElement();
     double average();
+    long sum();
+    int size();
+    bool read(const string& /* fName */);
+    bool add(string /* key */, int /* value */);
+    bool isExist(string& /* key */);
+    bool isEmpty();
+    void print();
     void EmptyError();
     void KeyExistError(string&);
 

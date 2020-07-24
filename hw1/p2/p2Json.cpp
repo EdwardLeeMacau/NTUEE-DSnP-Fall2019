@@ -17,26 +17,34 @@ using namespace std;
 /*
     !Print JSON Element Empty Error
 */
-void Json::EmptyError(){
-    cout << "Error: No element found!" << endl;
+void 
+Json::EmptyError()
+{
+    cout << "Error: No element found!!" << endl;
 }
 
 /*
     !Print Key Exist Error
 */
-void Json::KeyExistError(string& key){
+void 
+Json::KeyExistError(string& key)
+{
     cout << "Error: Element with key \"" << key << "\" already exists!!" << endl;
 }
 
 /*
+    // TODO: Optimize this.
+
     !Implement member functions of class Row and Table here
 
     @param jsonFile the filename of the jsonFile
 
     @return bool Whether the file is successfully read.
 */
-bool Json::read(const string& jsonFile){
-    ifstream myfile (jsonFile);
+bool 
+Json::read(const string& jsonFile)
+{
+    ifstream myfile(jsonFile);
     string line;
     string key;
     int value;
@@ -47,13 +55,12 @@ bool Json::read(const string& jsonFile){
         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
 
         // Case Handling
-        if (line == "{") {
-            continue;
-        } else if (line == ""){
-            continue;
-        } else if (line == "}"){
-            break;
-        }
+        if (line == "{") 
+            { continue; } 
+        else if (line == "")
+            { continue; } 
+        else if (line == "}")
+            { break; }
         
         // Remove the last element
         if (line[-1] == ','){
@@ -74,11 +81,11 @@ bool Json::read(const string& jsonFile){
 }
 
 /*
-    !Print the elements in the JSON
-
-    @return true
+    !Print the elements in this class
 */
-bool Json::print(){
+void
+Json::print()
+{
     cout << "{" << endl;
 
     for (int i = 0; i < size(); i++){
@@ -93,47 +100,41 @@ bool Json::print(){
     }
     
     cout << "}" << endl;
-    
-    return true;
 }
 
 /*
-    !Check if the JSON is empty
-
     @return Whether the json is empty
 */
-bool Json::isEmpty() {
-    if (_obj.size() == 0) return true;
-
-    return false;
+bool 
+Json::isEmpty() 
+{
+    return (_obj.size() == 0)? true : false;
 }
 
 /*
-    !Check if the key in JSON
-
     @return Whether the key is exists in JSON
 */
-bool Json::isExist(string& key){
-    if (_table.find(key) != _table.end()){
-        return true;
-    }
-
-    return false;
+bool 
+Json::isExist(string& key)
+{
+    return (_table.find(key) != _table.end())? true : false;
 }
 
 /*
     @return The number of elements in container
 */
-int Json::size() {
+int 
+Json::size() 
+{
     return _obj.size();
 }
 
 /*
-    !Execute the summation function.
-
     @return total The total value of element's value in container
 */
-long Json::sum() {
+long 
+Json::sum() 
+{
     long total = 0;
 
     for (int i = 0; i < size(); i++){
@@ -148,8 +149,10 @@ long Json::sum() {
 
     @return JsonElem
 */
-JsonElem Json::maxElement() {
-    int maximum = 0;
+JsonElem 
+Json::maxElement() 
+{
+    int maximum = INT_MIN;
     int index = 0;
 
     for (int i = 0; i < size(); i++){
@@ -167,8 +170,10 @@ JsonElem Json::maxElement() {
 
     @return JsonElem
 */
-JsonElem Json::minElement() {
-    int minimum = 0;
+JsonElem 
+Json::minElement() 
+{
+    int minimum = INT_MAX;
     int index = 0;
 
     for (int i=0; i < size(); i++){
@@ -187,7 +192,9 @@ JsonElem Json::minElement() {
 
     @return bool Whether the element is successfully added to container.
 */
-bool Json::add(string key, int value){
+bool 
+Json::add(string key, int value)
+{
     _table.insert(key);
     _obj.push_back(JsonElem(key, value));
     
@@ -199,11 +206,15 @@ bool Json::add(string key, int value){
 
     @return average The average of the fucntion.
 */
-double Json::average(){
+double 
+Json::average()
+{
     return 1.0 * sum() / size();    
 }
 
-ostream& operator << (ostream& os, const JsonElem& j){
+ostream& 
+operator << (ostream& os, const JsonElem& j)
+{
     return (os << "\"" << j._key << "\" : " << j._value);
 }
 
