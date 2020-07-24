@@ -31,7 +31,8 @@ operator << (ostream& os, const DBJsonElem& j)
     return os;
 }
 
-istream& operator >> (istream& is, DBJson& j)
+istream& 
+operator >> (istream& is, DBJson& j)
 {
     // TODO: to read in data from Json file and store them in a DB 
     // - You can assume the input file is with correct JSON file format
@@ -68,7 +69,8 @@ istream& operator >> (istream& is, DBJson& j)
     return is;
 }
 
-ostream& operator << (ostream& os, const DBJson& j)
+ostream& 
+operator << (ostream& os, const DBJson& j)
 {
     // TODO
     cout << '{' << endl;
@@ -112,14 +114,16 @@ DBJson::reset()
     @return false if not read any JSON file.
 */
 bool
-DBJson::operator !() {
+DBJson::operator !() 
+{
     return !_exist;
 }
 
 /*
     @return NULL if not read any JSON file, else return this
 */
-DBJson::operator void* () const {
+DBJson::operator void* () const 
+{
     if (!_exist) 
         return NULL;
 
@@ -127,11 +131,11 @@ DBJson::operator void* () const {
 }
 
 /*
-    Append 1 (key, value) pair in _obj
+    Append 1 (key, value) pair
 
-    @ param elm A DBJson Element
+    @param elm A DBJson Element
 
-    @ return bool False if key is repeated, else true
+    @return bool False if key is repeated, else true
 */
 bool
 DBJson::add(const DBJsonElem& elm)
@@ -155,12 +159,9 @@ DBJson::ave() const
 {
     // TODO
 
-    float average;
+    float average = NAN;
 
-    if (_obj.size()) 
-        average = (float)sum() / _obj.size();
-    else 
-        average = NAN;
+    if (_obj.size()) { average = (float)sum() / _obj.size(); }
 
     return average;
 }
@@ -201,20 +202,6 @@ DBJson::min(size_t& idx) const
     return minN;
 }
 
-void
-DBJson::sort(const DBSortKey& s)
-{
-   // Sort the data according to the order of columns in 's'
-   ::sort(_obj.begin(), _obj.end(), s);
-}
-
-void
-DBJson::sort(const DBSortValue& s)
-{
-   // Sort the data according to the order of columns in 's'
-   ::sort(_obj.begin(), _obj.end(), s);
-}
-
 // return 0 if empty
 int
 DBJson::sum() const
@@ -227,4 +214,18 @@ DBJson::sum() const
     }
 
     return s;
+}
+
+void
+DBJson::sort(const DBSortKey& s)
+{
+   // Sort the data according to the order of columns in 's'
+   ::sort(_obj.begin(), _obj.end(), s);
+}
+
+void
+DBJson::sort(const DBSortValue& s)
+{
+   // Sort the data according to the order of columns in 's'
+   ::sort(_obj.begin(), _obj.end(), s);
 }

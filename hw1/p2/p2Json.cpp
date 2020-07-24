@@ -20,7 +20,7 @@ using namespace std;
 void 
 Json::EmptyError()
 {
-    cout << "Error: No element found!!" << endl;
+    cerr << "Error: No element found!!" << endl;
 }
 
 /*
@@ -29,7 +29,7 @@ Json::EmptyError()
 void 
 Json::KeyExistError(string& key)
 {
-    cout << "Error: Element with key \"" << key << "\" already exists!!" << endl;
+    cerr << "Error: Element with key \"" << key << "\" already exists!!" << endl;
 }
 
 /*

@@ -41,20 +41,21 @@ class DBJson
 public:
    // TODO: define constructor & member functions on your own
    DBJson() {}
-   bool add(const DBJsonElem&); // return false if key is repeated
+
    float ave() const;
    int max(size_t&) const;
    int min(size_t&) const;
+   int sum() const;
+   bool add(const DBJsonElem&); // return false if key is repeated
    void sort(const DBSortKey&);
    void sort(const DBSortValue&);
-   int sum() const;
 
    // Basic access functions
-   void reset();
+   const DBJsonElem& operator [] (size_t i) const { return _obj[i]; }
+   DBJsonElem& operator [] (size_t i) { return _obj[i]; }
    size_t size() const { return _obj.size(); }
    bool empty() const { return _obj.empty(); }
-   DBJsonElem& operator [] (size_t i) { return _obj[i]; }
-   const DBJsonElem& operator [] (size_t i) const { return _obj[i]; }
+   void reset();
 
    // TODO modify these two functions according to the comments
    // return true if JSON file hasn't been read in

@@ -17,31 +17,31 @@
 DBJson dbjson;
 
 /*
-    Initialize the command of Class Db
+   Initialize the command of Class Db
 
-    @return bool false if DbCommand initialization is failed.
+   @return bool false if DbCommand initialization is failed.
 
-    @Reference initCommonCmd in cmdCommon.cpp
+   @Reference initCommonCmd in cmdCommon.cpp
 */
 bool
 initDbCmd()
 {
-    // TODO...
-    if (!(cmdMgr->regCmd("DBAPpend", 4, new DBAppendCmd) &&
-          cmdMgr->regCmd("DBAVerage", 4, new DBAveCmd) &&
-          cmdMgr->regCmd("DBCount", 3, new DBCountCmd) &&
-          cmdMgr->regCmd("DBMAx", 4, new DBMaxCmd) &&
-          cmdMgr->regCmd("DBMIn", 4, new DBMinCmd) &&
-          cmdMgr->regCmd("DBPrint", 3, new DBPrintCmd) &&
-          cmdMgr->regCmd("DBRead", 3, new DBReadCmd) &&
-          cmdMgr->regCmd("DBSOrt", 4, new DBSortCmd) &&
-          cmdMgr->regCmd("DBSUm", 4, new DBSumCmd)))
-        {
-            cerr << "Registering \"init\" commands fails... exiting" << endl;
-            return false;
-        }
+   // TODO...
+   if (!(cmdMgr->regCmd("DBAPpend", 4, new DBAppendCmd) &&
+         cmdMgr->regCmd("DBAVerage", 4, new DBAveCmd) &&
+         cmdMgr->regCmd("DBCount", 3, new DBCountCmd) &&
+         cmdMgr->regCmd("DBMAx", 4, new DBMaxCmd) &&
+         cmdMgr->regCmd("DBMIn", 4, new DBMinCmd) &&
+         cmdMgr->regCmd("DBPrint", 3, new DBPrintCmd) &&
+         cmdMgr->regCmd("DBRead", 3, new DBReadCmd) &&
+         cmdMgr->regCmd("DBSOrt", 4, new DBSortCmd) &&
+         cmdMgr->regCmd("DBSUm", 4, new DBSumCmd)))
+      {
+         cerr << "Registering \"init\" commands fails... exiting" << endl;
+         return false;
+      }
 
-    return true;
+   return true;
 }
 
 //----------------------------------------------------------------------
@@ -49,61 +49,61 @@ initDbCmd()
 //----------------------------------------------------------------------
 
 /*
-    @param option The option to execute DBAppend
+   @param option The option to execute DBAppend
 
-    @return CMD_EXEC_DONE
+   @return CMD_EXEC_DONE
 */
 CmdExecStatus
 DBAppendCmd::exec(const string& option)
 {
-    // TODO...
-    // check option
+   // TODO...
+   // check option
 
-    // If DBJson is not initialized, raise NotCreatedError.
-    if (!dbjson) {
-        cout << "Error: DB is not created yet!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+   // If DBJson is not initialized, raise NotCreatedError.
+   if (!dbjson) {
+      cout << "Error: DB is not created yet!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
 
-    vector<string> tokens;
-    string key;
-    int value;
-    
-    if (!CmdExec::lexOptions(option, tokens, 2)) {
-        return CMD_EXEC_ERROR;
-    }
+   vector<string> tokens;
+   string key;
+   int value;
+   
+   if (!CmdExec::lexOptions(option, tokens, 2)) {
+      return CMD_EXEC_ERROR;
+   }
 
-    key = tokens[0];
-    // If <value> is invalid
-    if (!myStr2Int(tokens[1], value)) {
-        return errorOption(CMD_OPT_ILLEGAL, tokens[1]);
-    }
+   key = tokens[0];
+   // If <value> is invalid
+   if (!myStr2Int(tokens[1], value)) {
+      return errorOption(CMD_OPT_ILLEGAL, tokens[1]);
+   }
 
-    // If the key is invalid
-    if (!isValidVarName(key)) {
-        return errorOption(CMD_OPT_ILLEGAL, key);
-    }
+   // If the key is invalid
+   if (!isValidVarName(key)) {
+      return errorOption(CMD_OPT_ILLEGAL, key);
+   }
 
-    // If key is repeated, add() will return false
-    if (!dbjson.add(DBJsonElem(key, value))) {
-        cerr << "Error: Element with key \"" << key << "\" already exists!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+   // If key is repeated, add() will return false
+   if (!dbjson.add(DBJsonElem(key, value))) {
+      cerr << "Error: Element with key \"" << key << "\" already exists!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
 
-    return CMD_EXEC_DONE;
+   return CMD_EXEC_DONE;
 }
 
 void
 DBAppendCmd::usage(ostream& os) const
 {
-    os << "Usage: DBAPpend <(string key)><(int value)>" << endl;
+   os << "Usage: DBAPpend <(string key)><(int value)>" << endl;
 }
 
 void
 DBAppendCmd::help() const
 {
-    cout << setw(15) << left << "DBAPpend: "
-         << "append an JSON element (key-value pair) to the end of DB" << endl;
+   cout << setw(15) << left << "DBAPpend: "
+        << "append an JSON element (key-value pair) to the end of DB" << endl;
 }
 
 
@@ -114,34 +114,34 @@ DBAppendCmd::help() const
 CmdExecStatus
 DBAveCmd::exec(const string& option)
 {  
-    // check option
-    if (!CmdExec::lexNoOption(option))
-        return CMD_EXEC_ERROR;
+   // check option
+   if (!CmdExec::lexNoOption(option))
+      return CMD_EXEC_ERROR;
 
-    float a = dbjson.ave();
-    if (isnan(a)) {
-        cerr << "Error: The average of the DB is nan." << endl;
-        return CMD_EXEC_ERROR;
-    }
-    ios_base::fmtflags origFlags = cout.flags();
-    cout << "The average of the DB is " << fixed
-         << setprecision(2) << a << ".\n";
-    cout.flags(origFlags);
+   float a = dbjson.ave();
+   if (isnan(a)) {
+      cerr << "Error: The average of the DB is nan." << endl;
+      return CMD_EXEC_ERROR;
+   }
+   ios_base::fmtflags origFlags = cout.flags();
+   cout << "The average of the DB is " << fixed
+      << setprecision(2) << a << ".\n";
+   cout.flags(origFlags);
 
-    return CMD_EXEC_DONE;
+   return CMD_EXEC_DONE;
 }
 
 void
 DBAveCmd::usage(ostream& os) const
 {     
-    os << "Usage: DBAVerage" << endl;
+   os << "Usage: DBAVerage" << endl;
 }
 
 void
 DBAveCmd::help() const
 {
-    cout << setw(15) << left << "DBAVerage: "
-         << "compute the average of the DB" << endl;
+   cout << setw(15) << left << "DBAVerage: "
+        << "compute the average of the DB" << endl;
 }
 
 
@@ -260,50 +260,50 @@ DBMinCmd::help() const
 CmdExecStatus
 DBPrintCmd::exec(const string& option)
 {  
-    // TODO...
+   // TODO...
 
-    if (!dbjson) {
-        cerr << "Error: DB is not created yet!!" << endl;
-        return CMD_EXEC_ERROR;
-    }
+   if (!dbjson) {
+      cerr << "Error: DB is not created yet!!" << endl;
+      return CMD_EXEC_ERROR;
+   }
 
-    string token;
+   string token;
 
-    if (lexSingleOption(option, token)) {
-        // Cout entire DBJson
-        if (token == "") {
-            cout << dbjson << endl;
-            return CMD_EXEC_DONE;
-        }
-        else {
-            // Traverse DBJson to find the required element.
-            for (size_t i = 0; i < dbjson.size(); ++i) {
-                if (dbjson[i].key() == token) {
-                    cout << "{ " << dbjson[i] << " }" << endl;
-                    return CMD_EXEC_DONE;
-                }
-            }
+   if (lexSingleOption(option, token)) {
+      // Cout entire DBJson
+      if (token == "") {
+         cout << dbjson << endl;
+         return CMD_EXEC_DONE;
+      }
+      else {
+         // Traverse DBJson to find the required element.
+         for (size_t i = 0; i < dbjson.size(); ++i) {
+               if (dbjson[i].key() == token) {
+                  cout << "{ " << dbjson[i] << " }" << endl;
+                  return CMD_EXEC_DONE;
+               }
+         }
 
-            // CError if key was not found.
-            cerr << "Error: No JSON element with key \"" << token << "\" is found." << endl;
-            return CMD_EXEC_ERROR;
-        }
-    }
+         // CError if key was not found.
+         cerr << "Error: No JSON element with key \"" << token << "\" is found." << endl;
+         return CMD_EXEC_ERROR;
+      }
+   }
 
-    return CMD_EXEC_DONE;
+   return CMD_EXEC_DONE;
 }
 
 void
 DBPrintCmd::usage(ostream& os) const
 {
-    os << "DBPrint [(string key)]" << endl;
+   os << "DBPrint [(string key)]" << endl;
 }
 
 void
 DBPrintCmd::help() const
 {
-    cout << setw(15) << left << "DBPrint: "
-         << "print the JSON element(s) in the DB" << endl;
+   cout << setw(15) << left << "DBPrint: "
+        << "print the JSON element(s) in the DB" << endl;
 }
 
 
@@ -384,9 +384,12 @@ DBSortCmd::exec(const string& option)
    if (!CmdExec::lexSingleOption(option, token, false))
       return CMD_EXEC_ERROR;
 
-   if (myStrNCmp("-Key", token, 2) == 0) dbjson.sort(DBSortKey());
-   else if (myStrNCmp("-Value", token, 2) == 0) dbjson.sort(DBSortValue());
-   else return CmdExec::errorOption(CMD_OPT_ILLEGAL, token);
+   if (myStrNCmp("-Key", token, 2) == 0) 
+      { dbjson.sort(DBSortKey()); }
+   else if (myStrNCmp("-Value", token, 2) == 0) 
+      { dbjson.sort(DBSortValue()); }
+   else 
+      { return CmdExec::errorOption(CMD_OPT_ILLEGAL, token); }
 
    return CMD_EXEC_DONE;
 }
