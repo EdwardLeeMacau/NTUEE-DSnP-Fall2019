@@ -5,12 +5,18 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2007-present LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
-#include <string.h>
 #include <cstdlib>
 #include <cassert>
 #include "cmdParser.h"
 
 using namespace std;
+
+//----------------------------------------------------------------------
+//    Global cmd Manager
+//----------------------------------------------------------------------
+CmdParser* cmdMgr = new CmdParser("cmd> ");
+
+extern bool initCommonCmd();
 
 static void
 usage()
@@ -47,27 +53,30 @@ myStrNCmp(const string& s1, const string& s2, unsigned n)
 int
 main(int argc, char** argv)
 {
-    CmdParser cmd("cmd> ");
+    CmdExecStatus status = CMD_EXEC_DONE;
 
     if (argc == 3) {  // -File <doFile>
         if (myStrNCmp("-File", argv[1], 2) == 0) {
-            if (!cmd.openDofile(argv[2])) {
+            if (!cmdMgr->openDofile(argv[2])) {
                 cerr << "Error: cannot open file \"" << argv[2] << "\"!!\n";
                 myexit();
             }
-        }
-        else {
+        } else {
             cerr << "Error: unknown argument \"" << argv[1] << "\"!!\n";
             myexit();
         }
-    }
-    else if (argc != 1) {
+    } else if (argc != 1) {
         cerr << "Error: illegal number of argument (" << argc << ")!!\n";
         myexit();
     }
 
-    cmd.readCmd();  // press "Ctrl-d" to break
-    cout << endl;  // a blank line between each command
+    if (!initCommonCmd())
+        return EXIT_FAILURE;
 
-    return 0;
+    while (status != CMD_EXEC_QUIT) {
+        status = cmdMgr->execOneCmd();  // press "Ctrl-d" to break
+        cout << endl;  // a blank line between each command
+    }
+
+    return EXIT_SUCCESS;
 }

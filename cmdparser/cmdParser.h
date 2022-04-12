@@ -23,6 +23,16 @@ using namespace std;
 //    Forward Declaration
 //----------------------------------------------------------------------
 
+class CmdExec;
+class CmdParser;
+
+
+//----------------------------------------------------------------------
+//    External declaration
+//----------------------------------------------------------------------
+extern CmdParser* cmdMgr;
+
+
 //----------------------------------------------------------------------
 //    command execution status
 //----------------------------------------------------------------------
@@ -128,8 +138,6 @@ public:
    void printHistory(int nPrint = -1) const;
    CmdExec* getCmd(string);
 
-   void readCmd();
-
 private:
    // Private member functions
    void resetBufAndPrintPrompt() {
@@ -139,6 +147,9 @@ private:
         printPrompt();
    }
    void readCmdInt(istream&);
+   bool readCmd(istream&);
+   CmdExec* parseCmd(string&);
+   void listCmd(const string&);
    void printPrompt() const { cout << _prompt; }
 
    // Helper functions
@@ -146,6 +157,7 @@ private:
    bool deleteChar();
    void insertChar(char, int = 1);
    void deleteLine();
+   void reprintCmd();
    void moveToHistory(int index);
    bool addHistory();
    void retrieveHistory();

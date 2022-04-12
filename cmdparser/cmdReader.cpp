@@ -26,33 +26,7 @@ ParseChar getChar(istream&);
 //    Member Function for class Parser
 //----------------------------------------------------------------------
 bool
-CmdParser::openDofile(const string& dof)
-{
-    _dofile = new ifstream(dof);
-    return _dofile->is_open();
-}
-
-void
-CmdParser::closeDofile()
-{
-    return;
-}
-
-void
-CmdParser::readCmd()
-{
-    if (_dofile && _dofile->is_open()) {
-        readCmdInt(*_dofile);
-        _dofile->close();
-    } else {
-        readCmdInt(cin);
-    }
-
-    return;
-}
-
-void
-CmdParser::readCmdInt(istream& istr)
+CmdParser::readCmd(istream& istr)
 {
     resetBufAndPrintPrompt();
 
@@ -68,7 +42,7 @@ CmdParser::readCmdInt(istream& istr)
             case DELETE_KEY     : deleteChar(); break;
             case NEWLINE_KEY    : addHistory();
                                   cout << char(NEWLINE_KEY);
-                                  resetBufAndPrintPrompt(); break;
+                                  resetBufAndPrintPrompt(); return true;
             case ARROW_UP_KEY   : moveToHistory(_historyIdx - 1); break;
             case ARROW_DOWN_KEY : moveToHistory(_historyIdx + 1); break;
             case ARROW_RIGHT_KEY: moveBufPtr(_readBufPtr + 1); break;
@@ -86,7 +60,7 @@ CmdParser::readCmdInt(istream& istr)
         #endif
     }
 
-    return;
+    return false;
 }
 
 
@@ -270,6 +244,12 @@ CmdParser::deleteLine()
     // Move the cursor to the leading of _readBuf
     moveBufPtr(_readBuf);
     _readBufEnd = _readBuf;
+}
+
+void
+CmdParser::reprintCmd()
+{
+    return;
 }
 
 /*

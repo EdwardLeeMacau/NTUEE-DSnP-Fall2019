@@ -26,8 +26,8 @@ ref : .cmdCharDef cmdReader-ref
 ##############
 # Executable #
 ##############
-cmdReader: main.o cmdReader.o cmdCharDef.o
-	g++ -o $@ $(MAKEFLAGS) main.o cmdReader.o cmdCharDef.o
+cmdReader: main.o cmdReader.o cmdCharDef.o cmdCommon.o cmdParser.o myString.o myGetChar.o util.o
+	g++ -o $@ $(MAKEFLAGS) $^
 #	strip $@
 
 testAsc: testAsc.o cmdCharDef.o
@@ -47,6 +47,9 @@ main.o: main.cpp cmdParser.h
 cmdCommon.o: cmdCommon.cpp cmdCommon.h
 	g++ -c $(MAKEFLAGS) cmdCommon.cpp
 
+cmdParser.o: cmdParser.cpp cmdParser.h
+	g++ -c $(MAKEFLAGS) cmdParser.cpp
+
 cmdReader.o: cmdReader.cpp cmdParser.h
 	g++ -c $(MAKEFLAGS) cmdReader.cpp
 
@@ -58,6 +61,15 @@ testAsc.o: testAsc.cpp cmdCharDef.h
 
 cmdParser.h: cmdCharDef.h
 	touch cmdParser.h
+
+myString.o: myString.cpp
+	g++ -c $(MAKEFLAGS) myString.cpp
+
+myGetChar.o: myGetChar.cpp
+	g++ -c $(MAKEFLAGS) myGetChar.cpp
+
+util.o: util.cpp util.h
+	g++ -c $(MAKEFLAGS) util.cpp
 
 #######################
 # No dependency rules #
