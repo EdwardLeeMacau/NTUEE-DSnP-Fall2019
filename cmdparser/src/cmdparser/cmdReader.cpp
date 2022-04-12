@@ -40,9 +40,7 @@ CmdParser::readCmd(istream& istr)
             case END_KEY        : moveBufPtr(_readBufEnd); break;
             case BACK_SPACE_KEY : if (moveBufPtr(_readBufPtr - 1)) {deleteChar();} break;
             case DELETE_KEY     : deleteChar(); break;
-            case NEWLINE_KEY    : addHistory();
-                                  cout << char(NEWLINE_KEY);
-                                  resetBufAndPrintPrompt(); return true;
+            case NEWLINE_KEY    : addHistory(); cout << char(NEWLINE_KEY); return true;
             case ARROW_UP_KEY   : moveToHistory(_historyIdx - 1); break;
             case ARROW_DOWN_KEY : moveToHistory(_historyIdx + 1); break;
             case ARROW_RIGHT_KEY: moveBufPtr(_readBufPtr + 1); break;

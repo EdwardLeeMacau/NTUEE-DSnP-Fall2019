@@ -140,12 +140,10 @@ CmdParser::execOneCmd()
 void
 CmdParser::printHelps() const
 {
-    // TODO...
     for (auto it = _cmdMap.begin(); it != _cmdMap.end(); ++it){
         it->second->help();
     }
 
-    // Print an endl at the end.
     cout << endl;
 }
 
