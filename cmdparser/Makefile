@@ -44,6 +44,9 @@ cmdReader-ref: main.o cmdReader.o.ref cmdCharDef.o
 main.o: main.cpp cmdParser.h
 	g++ -c $(MAKEFLAGS) main.cpp
 
+cmdCommon.o: cmdCommon.cpp cmdCommon.h
+	g++ -c $(MAKEFLAGS) cmdCommon.cpp
+
 cmdReader.o: cmdReader.cpp cmdParser.h
 	g++ -c $(MAKEFLAGS) cmdReader.cpp
 
@@ -67,6 +70,3 @@ linux mac:
 
 clean:
 	rm -f *.o cmdReader testAsc
-
-ctags:
-	ctags *.cpp *.h

@@ -10,6 +10,8 @@
 #include <cstring>
 #include "cmdParser.h"
 
+#define TAB_POSITION 8
+
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -23,15 +25,30 @@ ParseChar getChar(istream&);
 //----------------------------------------------------------------------
 //    Member Function for class Parser
 //----------------------------------------------------------------------
+bool
+CmdParser::openDofile(const string& dof)
+{
+    _dofile = new ifstream(dof);
+    return _dofile->is_open();
+}
+
+void
+CmdParser::closeDofile()
+{
+    return;
+}
+
 void
 CmdParser::readCmd()
 {
-   if (_dofile.is_open()) {
-      readCmdInt(_dofile);
-      _dofile.close();
-   }
-   else
-      readCmdInt(cin);
+    if (_dofile && _dofile->is_open()) {
+        readCmdInt(*_dofile);
+        _dofile->close();
+    } else {
+        readCmdInt(cin);
+    }
+
+    return;
 }
 
 void
@@ -47,19 +64,18 @@ CmdParser::readCmdInt(istream& istr)
             case HOME_KEY       : moveBufPtr(_readBuf); break;
             case LINE_END_KEY   :
             case END_KEY        : moveBufPtr(_readBufEnd); break;
-            case BACK_SPACE_KEY : /* TODO */ 
-                                  if (moveBufPtr(_readBufPtr - 1)) {deleteChar();} break;
+            case BACK_SPACE_KEY : if (moveBufPtr(_readBufPtr - 1)) {deleteChar();} break;
             case DELETE_KEY     : deleteChar(); break;
             case NEWLINE_KEY    : addHistory();
                                   cout << char(NEWLINE_KEY);
                                   resetBufAndPrintPrompt(); break;
             case ARROW_UP_KEY   : moveToHistory(_historyIdx - 1); break;
             case ARROW_DOWN_KEY : moveToHistory(_historyIdx + 1); break;
-            case ARROW_RIGHT_KEY: /* TODO */ moveBufPtr(_readBufPtr + 1); break;
-            case ARROW_LEFT_KEY : /* TODO */ moveBufPtr(_readBufPtr - 1); break;
+            case ARROW_RIGHT_KEY: moveBufPtr(_readBufPtr + 1); break;
+            case ARROW_LEFT_KEY : moveBufPtr(_readBufPtr - 1); break;
             case PG_UP_KEY      : moveToHistory(_historyIdx - PG_OFFSET); break;
             case PG_DOWN_KEY    : moveToHistory(_historyIdx + PG_OFFSET); break;
-            case TAB_KEY        : /* TODO */ insertChar(' ', ( TAB_POSITION - (_readBufPtr - _readBuf)  % TAB_POSITION ) ); break;
+            case TAB_KEY        : insertChar(' ', ( TAB_POSITION - (_readBufPtr - _readBuf)  % TAB_POSITION ) ); break;
             case INSERT_KEY     : // not yet supported; fall through to UNDEFINE
             case UNDEFINED_KEY:   mybeep(); break;
             default:  // printable character
@@ -69,35 +85,35 @@ CmdParser::readCmdInt(istream& istr)
         taTestOnly();
         #endif
     }
+
+    return;
 }
 
 
-/*
-    This function moves _readBufPtr to the "ptr" pointer
-    It is used by left/right arrowkeys, home/end, etc.
-
-    Suggested steps:
-    1. Make sure ptr is within [_readBuf, _readBufEnd].
-       If not, make a beep sound and return false. (DON'T MOVE)
-
-    2. Move the cursor to the left or right, depending on ptr
-
-    3. Update _readBufPtr accordingly. The content of the _readBuf[] will
-        not be changed
-
-    [Note] 
-    This function can also be called by other member functions below
-    to move the _readBufPtr to proper position.
-
-    @params ptr
-
-    @return bool True if pointer is legal to move.
-*/
+/**
+ * @brief
+ * This function moves _readBufPtr to the "ptr" pointer
+ *
+ * @details
+ * It is used by left/right arrowkeys, home/end, etc.
+ *
+ * Suggested steps:
+ * 1. Make sure ptr is within [_readBuf, _readBufEnd].
+ *    If not, make a beep sound and return false. (DON'T MOVE)
+ * 2. Move the cursor to the left or right, depending on ptr
+ * 3. Update _readBufPtr accordingly. The content of the _readBuf[] will
+ *    not be changed
+ *
+ * @param[in] ptr
+ * @return Boolean. True if pointer is legal to move.
+ *
+ * @note
+ * This function can also be called by other member functions below
+ * to move the _readBufPtr to proper position.
+ */
 bool
 CmdParser::moveBufPtr(char* const ptr)
 {
-    // TODO...
-
     // Check **ptr** is within [_readBuf, _readBufEnd]
     if (ptr < _readBuf || ptr > _readBufEnd) {
         mybeep();
@@ -143,11 +159,7 @@ CmdParser::moveBufPtr(char* const ptr)
 bool
 CmdParser::deleteChar()
 {
-    // TODO...
-
-    /* 
-        If _readBufPtr at the end of _readBuf, call mybeep();
-    */
+    // If _readBufPtr at the end of _readBuf, call mybeep();
     if (_readBufPtr == _readBufEnd) {
         mybeep();
         return false;
@@ -155,7 +167,7 @@ CmdParser::deleteChar()
 
     /*
         Else, delete 1 char
-        1. Looping to move the remain characters in array forward, 
+        1. Looping to move the remain characters in array forward,
            and cout them
         2. cout << ' ' to replace the last char
         3. Move the cursor to **_readBufPtr**
@@ -167,8 +179,8 @@ CmdParser::deleteChar()
     }
 
     // Print a ' ' to replace the char
-    cout << ' '; 
-    
+    cout << ' ';
+
     // Move the cursor
     for (char* ptr = _readBufPtr; ptr < _readBufEnd; ++ptr)
         cout << '\b';
@@ -178,31 +190,31 @@ CmdParser::deleteChar()
     return true;
 }
 
-/*
-    Insert characters in _readBuf.
-
-    [Notes]
-    1. Insert character 'ch' for "repeat" times at _readBufPtr
-    2. Move the remaining string right for "repeat" characters
-    3. The cursor should move right for "repeats" positions afterwards
-    4. Default value for "repeat" is 1. You should assert that (repeat >= 1).
-
-    For example, (^ is the cursor position)
-    cmd> This is the command
-                 ^                
-
-    After calling insertChar('k', 3) ---
-    cmd> This is kkkthe command
-                    ^
-    
-    @params ch
-
-    @params repeat 
-*/
+/**
+ * @brief
+ * Insert characters in _readBuf.
+ *
+ * @details
+ * Steps.
+ *  1. Insert character 'ch' for "repeat" times at _readBufPtr
+ *  2. Move the remaining string right for "repeat" characters
+ *  3. The cursor should move right for "repeats" positions afterwards
+ *  4. Default value for "repeat" is 1. You should assert that (repeat >= 1).
+ *
+ *  For example, (^ is the cursor position)
+ *  cmd> This is the command
+ *               ^
+ *
+ *  After calling insertChar('k', 3) ---
+ *  cmd> This is kkkthe command
+ *                  ^
+ *
+ * @param[in] ch
+ * @param[in] repeat
+ */
 void
 CmdParser::insertChar(char ch, int repeat)
 {
-    // TODO...
     assert(repeat >= 1);
 
     // Extend the size of _readBuf
@@ -236,7 +248,7 @@ CmdParser::insertChar(char ch, int repeat)
 
     [Example] (^ is the cursor position)
     cmd> This is the command
-                 ^                
+                 ^
 
     After calling deleteLine()---
     cmd>
@@ -245,13 +257,9 @@ CmdParser::insertChar(char ch, int repeat)
 void
 CmdParser::deleteLine()
 {
-    // TODO...
-
-    /*
-        Empty _readBuf, set pointers (_readBufPtr, _readBufEnd) point to the begin of _readBuf
-    */
+    // Empty _readBuf, set pointers (_readBufPtr, _readBufEnd) point to the begin of _readBuf
     moveBufPtr(_readBuf);
-    
+
     // Cover all letters show in screen
     while (_readBufPtr < _readBufEnd){
         cout << ' ';
@@ -268,7 +276,7 @@ CmdParser::deleteLine()
     This functions moves _historyIdx to index and display _history[index]
     on the screen.
 
-    [Note] 
+    [Note]
     Need to consider:
     - If moving up... (i.e. index < _historyIdx)
         1. If already at top (i.e. _historyIdx == 0), beep and do nothing.
@@ -287,10 +295,9 @@ CmdParser::deleteLine()
 void
 CmdParser::moveToHistory(int index)
 {
-    // TODO...
     assert(index != _historyIdx);
 
-    /* 
+    /*
         To move up:
         1. Beep() and return if _historyIdex is 0
         2. If index < 0, clip it to 0.
@@ -300,12 +307,12 @@ CmdParser::moveToHistory(int index)
             mybeep();
             return;
         }
-        
+
         if (index <= 0)
             index = 0;
     }
 
-    /* 
+    /*
         To move down:
         1. Beep() and return if _historyIdx is at the end
         2. If index > size() - 1, clip it to size() - 1
@@ -315,7 +322,7 @@ CmdParser::moveToHistory(int index)
             mybeep();
             return;
         }
-        
+
         if (index >= _history.size() - 1)
             index = _history.size() - 1;
     }
@@ -339,7 +346,7 @@ CmdParser::moveToHistory(int index)
 
 /*
     This function adds the string in _readBuf to the _history.
-    The size of _history may or may not change. Depending on whether 
+    The size of _history may or may not change. Depending on whether
     there is a temp history string.
 
     [Notes]
@@ -351,10 +358,9 @@ CmdParser::moveToHistory(int index)
        and reset _tempCmdStored to false
     5. Reset _historyIdx to _history.size() // for future insertion
 */
-void
+bool
 CmdParser::addHistory()
 {
-    // TODO...
     string cmd = _readBuf;
     size_t lcursor = cmd.find_first_not_of(' ');
     size_t rcursor = cmd.find_last_not_of(' ');
@@ -369,8 +375,7 @@ CmdParser::addHistory()
 
     // Else if **_readBuf** is not empty, strip
     if (lcursor != string::npos) {
-        if (rcursor == string::npos) cmd = cmd.substr(lcursor);
-        else cmd = cmd.substr(lcursor, rcursor - lcursor + 1);
+        cmd = (rcursor == string::npos)? cmd.substr(lcursor) : cmd.substr(lcursor, rcursor - lcursor + 1);
 
         _history.push_back(cmd);
     }
@@ -382,22 +387,28 @@ CmdParser::addHistory()
     for (char *ptr = _readBuf; ptr < _readBufEnd; ++ptr){
         *ptr = 0;
     }
+
+    return true;
 }
 
-/*
-    1. Replace current line with _history[_historyIdx] on the screen
-    2. Set _readBufPtr and _readBufEnd to end of line
-
-    [Note] 
-    1. Do not change _history.size().
-    2. char* strcpy(char* dest, const char* src);
-       string.h in C++ standard library, to copy the str to dest from src.
-*/
+/**
+ * @brief
+ * Retrieve history commands
+ *
+ * @details
+ *  1. Replace current line with _history[_historyIdx] on the screen
+ *  2. Set _readBufPtr and _readBufEnd to end of line
+ *
+ * @note
+ *  1. Do not change _history.size().
+ *  2. char* strcpy(char* dest, const char* src);
+ *     string.h in C++ standard library, to copy the str to dest from src.
+ */
 void
 CmdParser::retrieveHistory()
 {
-   deleteLine();
-   strcpy(_readBuf, _history[_historyIdx].c_str());
-   cout << _readBuf;
-   _readBufPtr = _readBufEnd = _readBuf + _history[_historyIdx].size();
+    deleteLine();
+    strcpy(_readBuf, _history[_historyIdx].c_str());
+    cout << _readBuf;
+    _readBufPtr = _readBufEnd = _readBuf + _history[_historyIdx].size();
 }
